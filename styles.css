@@ -1,0 +1,146 @@
+/* ===========================
+   UNISPORT BOOKING - styles.css
+   =========================== */
+
+/* General */
+body {
+  font-family: 'Roboto', sans-serif;
+  background: #f0f2f5;
+}
+
+/* ---- NAVBAR ---- */
+.navbar {
+  background: #0056b3;
+}
+
+.navbar-brand {
+  color: #fff !important;
+  font-weight: 700;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+.nav-link:hover {
+  color: #fff !important;
+}
+
+.btn-logout {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  font-size: 0.85rem;
+  background: transparent;
+}
+
+.btn-logout:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+/* ---- CARDS (general) ---- */
+.card {
+  border-radius: 0;
+  border: 1px solid #dee2e6;
+}
+
+/* ---- SIDEBAR ---- */
+.sidebar-card .card-header {
+  background: #0056b3;
+  color: #fff;
+  font-weight: 700;
+  text-align: center;
+  border-radius: 0;
+}
+
+.user-avatar {
+  width: 70px;
+  height: 70px;
+  background: #e9ecef;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+}
+
+.user-avatar svg {
+  width: 40px;
+  height: 40px;
+  color: #0056b3;
+}
+
+.badge-saldo {
+  background: #0056b3;
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 6px 14px;
+}
+
+/* ---- RESERVAS ---- */
+.reserva-card {
+  border-left: 4px solid #0056b3;
+  border-radius: 0;
+}
+
+.sport-icon {
+  font-size: 1.4rem;
+}
+
+/* ---- PISTAS ---- */
+.pista-card .card-header {
+  background: #0056b3;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0;
+}
+
+.btn-reservar {
+  background: #28a745;
+  border: none;
+  color: #fff;
+  border-radius: 0;
+  font-weight: 600;
+}
+
+.btn-reservar:hover {
+  background: #218838;
+  color: #fff;
+}
+
+/* ---- SECTION TITLES ---- */
+.section-title {
+  font-weight: 700;
+  color: #0056b3;
+  border-bottom: 2px solid #0056b3;
+  padding-bottom: 4px;
+  margin-bottom: 16px;
+}
+
+/* ---- FAB ---- */
+.fab {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 56px;
+  height: 56px;
+  background: #0056b3;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.45);
+  z-index: 999;
+  cursor: pointer;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.fab:hover {
+  background: #004099;
+}
