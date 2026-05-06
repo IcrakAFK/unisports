@@ -1,8 +1,14 @@
 /* ===========================
    UNISPORT BOOKING - styles.css
-   =========================== */
+   SIN BOOTSTRAP - CSS PURO
+=========================== */
 
-/* General */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body {
   font-family: 'Roboto', sans-serif;
   background: #f0f2f5;
@@ -11,48 +17,79 @@ body {
 /* ---- NAVBAR ---- */
 .navbar {
   background: #0056b3;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .navbar-brand {
-  color: #fff !important;
+  color: #fff;
   font-weight: 700;
   font-size: 1.3rem;
+  text-decoration: none;
   letter-spacing: 1px;
 }
 
-.nav-link {
-  color: rgba(255, 255, 255, 0.85) !important;
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.nav-link:hover {
-  color: #fff !important;
+.nav-links a {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  font-size: 0.95rem;
 }
+
+.nav-links a:hover { color: #fff; }
 
 .btn-logout {
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255,255,255,0.5);
   color: #fff;
-  font-size: 0.85rem;
   background: transparent;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.btn-logout:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-}
+.btn-logout:hover { background: rgba(255,255,255,0.15); }
 
-/* ---- CARDS (general) ---- */
-.card {
-  border-radius: 0;
-  border: 1px solid #dee2e6;
+/* ---- LAYOUT ---- */
+.main {
+  padding: 24px 20px;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
 }
 
 /* ---- SIDEBAR ---- */
-.sidebar-card .card-header {
+.sidebar {
+  width: 240px;
+  min-width: 240px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+}
+
+.card-header {
   background: #0056b3;
   color: #fff;
   font-weight: 700;
   text-align: center;
-  border-radius: 0;
+  padding: 12px;
+}
+
+.card-body {
+  padding: 20px;
+  text-align: center;
 }
 
 .user-avatar {
@@ -63,7 +100,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 10px;
+  margin: 0 auto 12px;
 }
 
 .user-avatar svg {
@@ -72,51 +109,89 @@ body {
   color: #0056b3;
 }
 
+.card-body p { margin-bottom: 8px; font-size: 0.95rem; }
+.muted { color: #6c757d; font-size: 0.85rem; }
+
 .badge-saldo {
+  display: inline-block;
   background: #0056b3;
   color: #fff;
   font-size: 0.9rem;
   padding: 6px 14px;
+  margin-top: 4px;
 }
 
-/* ---- RESERVAS ---- */
-.reserva-card {
-  border-left: 4px solid #0056b3;
-  border-radius: 0;
-}
+/* ---- CONTENIDO ---- */
+.contenido { flex: 1; }
 
-.sport-icon {
-  font-size: 1.4rem;
-}
-
-/* ---- PISTAS ---- */
-.pista-card .card-header {
-  background: #0056b3;
-  color: #fff;
-  font-weight: 600;
-  border-radius: 0;
-}
-
-.btn-reservar {
-  background: #28a745;
-  border: none;
-  color: #fff;
-  border-radius: 0;
-  font-weight: 600;
-}
-
-.btn-reservar:hover {
-  background: #218838;
-  color: #fff;
-}
-
-/* ---- SECTION TITLES ---- */
 .section-title {
   font-weight: 700;
   color: #0056b3;
   border-bottom: 2px solid #0056b3;
   padding-bottom: 4px;
   margin-bottom: 16px;
+  font-size: 1.1rem;
+}
+
+/* ---- GRIDS ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+/* ---- TARJETA RESERVA ---- */
+.reserva-card {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  border-left: 4px solid #0056b3;
+  padding: 14px;
+}
+
+.sport-icon { font-size: 1.4rem; }
+.reserva-card strong { display: block; margin: 4px 0 2px; }
+.reserva-card .fecha { color: #6c757d; font-size: 0.85rem; }
+
+/* ---- TARJETA PISTA ---- */
+.pista-card { background: #fff; border: 1px solid #dee2e6; }
+.pista-card .card-header { font-size: 0.95rem; padding: 10px 14px; text-align: left; }
+.pista-card .card-body { text-align: left; padding: 14px; }
+.pista-card .desc { color: #6c757d; font-size: 0.85rem; margin-bottom: 6px; }
+.pista-card .precio { font-weight: 700; margin-bottom: 12px; }
+
+/* ---- BOTONES ---- */
+.btn-reservar {
+  background: #28a745;
+  border: none;
+  color: #fff;
+  padding: 8px 0;
+  width: 100%;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-reservar:hover { background: #218838; }
+
+.btn-cancelar {
+  background: #dc3545;
+  border: none;
+  color: #fff;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.btn-cancelar:hover { background: #b02a37; }
+
+.btn-secundario {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
 }
 
 /* ---- FAB ---- */
@@ -134,13 +209,135 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 86, 179, 0.45);
-  z-index: 999;
+  box-shadow: 0 4px 12px rgba(0,86,179,0.45);
   cursor: pointer;
-  transition: background 0.2s;
-  line-height: 1;
+  z-index: 999;
 }
 
-.fab:hover {
-  background: #004099;
+.fab:hover { background: #004099; }
+
+/* ---- FOOTER ---- */
+footer {
+  text-align: center;
+  color: #6c757d;
+  font-size: 0.8rem;
+  border-top: 1px solid #dee2e6;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+/* ---- MODAL ---- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-overlay.activo { display: flex; }
+
+.modal-box {
+  background: #fff;
+  width: 100%;
+  max-width: 440px;
+  margin: 20px;
+}
+
+.modal-header {
+  background: #0056b3;
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h5 { font-weight: 700; margin: 0; }
+
+.modal-cerrar {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.modal-body { padding: 20px; }
+
+.modal-footer {
+  padding: 12px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #dee2e6;
+}
+
+/* ---- FORMULARIO ---- */
+.form-group { margin-bottom: 16px; }
+
+.form-group label {
+  display: block;
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ced4da;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.form-row { display: flex; gap: 12px; }
+.form-row .form-group { flex: 1; }
+
+/* ---- ALERTAS ---- */
+.alerta {
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  display: none;
+}
+
+.alerta.error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+.alerta.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+.alerta.visible { display: block; }
+
+/* ---- TOAST ---- */
+#toastContainer {
+  position: fixed;
+  top: 70px;
+  right: 16px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  padding: 12px 18px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-width: 240px;
+}
+
+.toast.success { background: #28a745; color: #fff; }
+.toast.error   { background: #dc3545; color: #fff; }
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+  .main { flex-direction: column; }
+  .sidebar { width: 100%; min-width: unset; }
+  .grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; }
 }

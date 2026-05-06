@@ -1,90 +1,94 @@
 // =============================================
-//  UNISPORT BOOKING - app.js
+//  UNISPORT BOOKING - app.js  (SIN BOOTSTRAP)
 // =============================================
 
-const API = 'api.php';
+var API = 'api.php';
 
-// Iconos por deporte
-const iconos = {
+var iconos = {
   tenis:      '🎾',
   fútbol:     '⚽',
   futbol:     '⚽',
   pádel:      '🏓',
   padel:      '🏓',
   baloncesto: '🏀',
-  voleibol:   '🏐',
+  voleibol:   '🏐'
 };
 
-function iconoDeporte(deporte) {
+function icono(deporte) {
   return iconos[(deporte || '').toLowerCase()] || '🏅';
 }
 
-// ─── SALDO ────────────────────────────────────────────────────
+// ---- MODAL ----
+function abrirModal() {
+  document.getElementById('modalReserva').classList.add('activo');
+  document.getElementById('modalMsg').className = 'alerta';
+  document.getElementById('modalMsg').textContent = '';
+}
+
+function cerrarModal() {
+  document.getElementById('modalReserva').classList.remove('activo');
+}
+
+// Cerrar modal al hacer clic fuera
+document.addEventListener('click', function(e) {
+  if (e.target.id === 'modalReserva') cerrarModal();
+});
+
+// ---- SALDO ----
 function actualizarSaldo() {
-  fetch(`${API}?action=saldo`)
-    .then(r => r.json())
-    .then(data => {
+  fetch(API + '?action=saldo')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       if (data.ok) {
         document.getElementById('saldoDisplay').textContent = data.saldo;
       }
     });
 }
 
-// Actualizar saldo cada 30 segundos
 setInterval(actualizarSaldo, 30000);
 
-// ─── PRÓXIMAS RESERVAS ────────────────────────────────────────
+// ---- RESERVAS ----
 function cargarReservas() {
-  const contenedor = document.getElementById('listaReservas');
-  fetch(`${API}?action=reservas`)
-    .then(r => r.json())
-    .then(data => {
+  var contenedor = document.getElementById('listaReservas');
+  fetch(API + '?action=reservas')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       if (!data.ok || data.reservas.length === 0) {
-        contenedor.innerHTML = '<div class="col-12"><p class="text-muted">No tienes próximas reservas.</p></div>';
+        contenedor.innerHTML = '<p class="muted">No tienes próximas reservas.</p>';
         return;
       }
-      contenedor.innerHTML = data.reservas.map(r => `
-        <div class="col-12 col-sm-6 col-lg-4">
-          <div class="card reserva-card shadow-sm p-3">
-            <span class="sport-icon">${iconoDeporte(r.deporte)}</span>
-            <div class="fw-bold mt-1">${r.pista}</div>
-            <div class="text-muted small">
-              ${formatearFecha(r.fecha)} &nbsp;|&nbsp; ${r.hora_inicio.slice(0,5)} – ${r.hora_fin.slice(0,5)} h
-            </div>
-            <button class="btn btn-sm mt-2 btn-cancelar"
-              style="background:#dc3545;color:#fff;border-radius:0;font-size:.8rem"
-              data-id="${r.id}">
-              Cancelar
-            </button>
-          </div>
-        </div>
-      `).join('');
-
-      // Eventos cancelar
-      contenedor.querySelectorAll('.btn-cancelar').forEach(btn => {
-        btn.addEventListener('click', () => cancelarReserva(btn.dataset.id));
-      });
+      var html = '';
+      for (var i = 0; i < data.reservas.length; i++) {
+        var r = data.reservas[i];
+        html += '<div class="reserva-card">' +
+          '<span class="sport-icon">' + icono(r.deporte) + '</span>' +
+          '<strong>' + r.pista + '</strong>' +
+          '<span class="fecha">' + formatarFecha(r.fecha) + ' | ' + r.hora_inicio.slice(0,5) + ' – ' + r.hora_fin.slice(0,5) + ' h</span>' +
+          '<br><button class="btn-cancelar" onclick="cancelarReserva(' + r.id + ')">Cancelar</button>' +
+          '</div>';
+      }
+      contenedor.innerHTML = html;
     });
 }
 
-function formatearFecha(fechaStr) {
-  const [y, m, d] = fechaStr.split('-');
-  const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  return `${parseInt(d)} ${meses[parseInt(m)-1]}`;
+function formatarFecha(f) {
+  var partes = f.split('-');
+  var meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  return parseInt(partes[2]) + ' ' + meses[parseInt(partes[1]) - 1];
 }
 
-// ─── CANCELAR RESERVA ────────────────────────────────────────
-function cancelarReserva(reservaId) {
-  if (!confirm('¿Seguro que quieres cancelar esta reserva? Se te devolverá el importe.')) return;
+// ---- CANCELAR ----
+function cancelarReserva(id) {
+  if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe.')) return;
 
-  const body = new FormData();
-  body.append('action', 'cancelar');
-  body.append('reserva_id', reservaId);
+  var datos = new FormData();
+  datos.append('action', 'cancelar');
+  datos.append('reserva_id', id);
 
-  fetch(API, { method: 'POST', body })
-    .then(r => r.json())
-    .then(data => {
-      mostrarToast(data.msg, data.ok ? 'success' : 'danger');
+  fetch(API, { method: 'POST', body: datos })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      mostrarToast(data.msg, data.ok ? 'success' : 'error');
       if (data.ok) {
         document.getElementById('saldoDisplay').textContent = data.saldo;
         cargarReservas();
@@ -92,140 +96,120 @@ function cancelarReserva(reservaId) {
     });
 }
 
-// ─── PISTAS DISPONIBLES ───────────────────────────────────────
+// ---- PISTAS ----
 function cargarPistas() {
-  const contenedor = document.getElementById('listaPistas');
-  fetch(`${API}?action=pistas`)
-    .then(r => r.json())
-    .then(data => {
+  var contenedor = document.getElementById('listaPistas');
+  fetch(API + '?action=pistas')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
       if (!data.ok || data.pistas.length === 0) {
-        contenedor.innerHTML = '<div class="col-12"><p class="text-muted">No hay pistas disponibles.</p></div>';
+        contenedor.innerHTML = '<p class="muted">No hay pistas disponibles.</p>';
         return;
       }
-      contenedor.innerHTML = data.pistas.map(p => `
-        <div class="col-12 col-sm-6 col-lg-4">
-          <div class="card pista-card shadow-sm">
-            <div class="card-header">${iconoDeporte(p.deporte)} ${p.nombre}</div>
-            <div class="card-body">
-              <p class="mb-1 text-muted small">${p.descripcion || ''}</p>
-              <p class="fw-bold mb-3">${parseFloat(p.precio).toFixed(2)} € / hora</p>
-              <button class="btn btn-reservar w-100 btn-abrir-modal"
-                data-id="${p.id}" data-nombre="${p.nombre}">
-                Reservar
-              </button>
-            </div>
-          </div>
-        </div>
-      `).join('');
-
-      // Click en "Reservar" → abrir modal con pista preseleccionada
-      contenedor.querySelectorAll('.btn-abrir-modal').forEach(btn => {
-        btn.addEventListener('click', () => {
-          preseleccionarPista(btn.dataset.id, btn.dataset.nombre);
-          new bootstrap.Modal(document.getElementById('modalReserva')).show();
-        });
-      });
+      var html = '';
+      for (var i = 0; i < data.pistas.length; i++) {
+        var p = data.pistas[i];
+        html += '<div class="pista-card">' +
+          '<div class="card-header">' + icono(p.deporte) + ' ' + p.nombre + '</div>' +
+          '<div class="card-body">' +
+          '<p class="desc">' + (p.descripcion || '') + '</p>' +
+          '<p class="precio">' + parseFloat(p.precio).toFixed(2) + ' € / hora</p>' +
+          '<button class="btn-reservar" onclick="abrirModalConPista(' + p.id + ', \'' + p.nombre.replace(/'/g,"\\'") + '\')">Reservar</button>' +
+          '</div></div>';
+      }
+      contenedor.innerHTML = html;
     });
 }
 
-// ─── MODAL: NUEVA RESERVA ────────────────────────────────────
 function cargarSelectPistas() {
-  fetch(`${API}?action=pistas`)
-    .then(r => r.json())
-    .then(data => {
-      const sel = document.getElementById('selectPista');
-      sel.innerHTML = (data.pistas || []).map(p =>
-        `<option value="${p.id}">${p.nombre} – ${parseFloat(p.precio).toFixed(2)} €/h</option>`
-      ).join('');
+  fetch(API + '?action=pistas')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var sel = document.getElementById('selectPista');
+      sel.innerHTML = '';
+      for (var i = 0; i < (data.pistas || []).length; i++) {
+        var p = data.pistas[i];
+        var opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nombre + ' – ' + parseFloat(p.precio).toFixed(2) + ' €/h';
+        sel.appendChild(opt);
+      }
     });
 }
 
-function preseleccionarPista(id, nombre) {
-  const sel = document.getElementById('selectPista');
-  for (const opt of sel.options) {
-    if (opt.value == id) { opt.selected = true; break; }
+function abrirModalConPista(id, nombre) {
+  abrirModal();
+  var sel = document.getElementById('selectPista');
+  for (var i = 0; i < sel.options.length; i++) {
+    if (sel.options[i].value == id) {
+      sel.selectedIndex = i;
+      break;
+    }
   }
 }
 
-// Fecha mínima = hoy
-document.addEventListener('DOMContentLoaded', () => {
-  const inputFecha = document.getElementById('inputFecha');
-  if (inputFecha) {
-    inputFecha.min = new Date().toISOString().split('T')[0];
-    inputFecha.value = new Date().toISOString().split('T')[0];
+// ---- CONFIRMAR RESERVA ----
+function confirmarReserva() {
+  var pista_id    = document.getElementById('selectPista').value;
+  var fecha       = document.getElementById('inputFecha').value;
+  var hora_inicio = document.getElementById('inputHoraIni').value;
+  var hora_fin    = document.getElementById('inputHoraFin').value;
+
+  if (!pista_id || !fecha || !hora_inicio || !hora_fin) {
+    mostrarMsgModal('Completa todos los campos.', 'error');
+    return;
   }
+  if (hora_fin <= hora_inicio) {
+    mostrarMsgModal('La hora de fin debe ser posterior a la de inicio.', 'error');
+    return;
+  }
+
+  var datos = new FormData();
+  datos.append('action',      'reservar');
+  datos.append('pista_id',    pista_id);
+  datos.append('fecha',       fecha);
+  datos.append('hora_inicio', hora_inicio);
+  datos.append('hora_fin',    hora_fin);
+
+  fetch(API, { method: 'POST', body: datos })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        cerrarModal();
+        document.getElementById('saldoDisplay').textContent = data.saldo;
+        cargarReservas();
+        cargarPistas();
+        mostrarToast(data.msg, 'success');
+      } else {
+        mostrarMsgModal(data.msg, 'error');
+      }
+    });
+}
+
+// ---- HELPERS ----
+function mostrarMsgModal(texto, tipo) {
+  var box = document.getElementById('modalMsg');
+  box.textContent = texto;
+  box.className = 'alerta ' + tipo + ' visible';
+}
+
+function mostrarToast(texto, tipo) {
+  var cont = document.getElementById('toastContainer');
+  var div = document.createElement('div');
+  div.className = 'toast ' + tipo;
+  div.textContent = texto;
+  cont.appendChild(div);
+  setTimeout(function() { div.remove(); }, 4000);
+}
+
+// ---- INICIO ----
+document.addEventListener('DOMContentLoaded', function() {
+  var hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('inputFecha').min   = hoy;
+  document.getElementById('inputFecha').value = hoy;
 
   cargarReservas();
   cargarPistas();
   cargarSelectPistas();
   actualizarSaldo();
 });
-
-// Confirmar reserva desde el modal
-document.getElementById('btnConfirmarReserva')?.addEventListener('click', () => {
-  const pista_id   = document.getElementById('selectPista').value;
-  const fecha      = document.getElementById('inputFecha').value;
-  const hora_inicio = document.getElementById('inputHoraIni').value;
-  const hora_fin   = document.getElementById('inputHoraFin').value;
-  const msgBox     = document.getElementById('modalMsg');
-
-  if (!pista_id || !fecha || !hora_inicio || !hora_fin) {
-    mostrarModalMsg('Completa todos los campos.', 'danger');
-    return;
-  }
-  if (hora_fin <= hora_inicio) {
-    mostrarModalMsg('La hora de fin debe ser posterior a la de inicio.', 'danger');
-    return;
-  }
-
-  const body = new FormData();
-  body.append('action',      'reservar');
-  body.append('pista_id',    pista_id);
-  body.append('fecha',       fecha);
-  body.append('hora_inicio', hora_inicio);
-  body.append('hora_fin',    hora_fin);
-
-  fetch(API, { method: 'POST', body })
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        bootstrap.Modal.getInstance(document.getElementById('modalReserva')).hide();
-        document.getElementById('saldoDisplay').textContent = data.saldo;
-        cargarReservas();
-        cargarPistas();
-        mostrarToast(data.msg, 'success');
-      } else {
-        mostrarModalMsg(data.msg, 'danger');
-      }
-    });
-});
-
-// ─── HELPERS UI ──────────────────────────────────────────────
-function mostrarModalMsg(texto, tipo) {
-  const box = document.getElementById('modalMsg');
-  box.className = `alert alert-${tipo}`;
-  box.textContent = texto;
-}
-
-function mostrarToast(texto, tipo = 'success') {
-  // Toast Bootstrap dinámico
-  const id = 'toast_' + Date.now();
-  const html = `
-    <div id="${id}" class="toast align-items-center text-bg-${tipo} border-0 show"
-      role="alert" style="border-radius:0;min-width:260px">
-      <div class="d-flex">
-        <div class="toast-body fw-bold">${texto}</div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>`;
-
-  let container = document.getElementById('toastContainer');
-  if (!container) {
-    container = document.createElement('div');
-    container.id = 'toastContainer';
-    container.style.cssText = 'position:fixed;top:70px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px';
-    document.body.appendChild(container);
-  }
-  container.insertAdjacentHTML('beforeend', html);
-  setTimeout(() => document.getElementById(id)?.remove(), 4000);
-}
