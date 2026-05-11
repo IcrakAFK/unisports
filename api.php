@@ -1,136 +1,137 @@
 <?php
 // =============================================
 //  UNISPORT BOOKING - api.php
-//  Endpoints AJAX:
-//    POST action=reservar        → crear reserva
-//    POST action=cancelar        → cancelar reserva
-//    GET  action=saldo           → devuelve saldo actual
-//    GET  action=pistas          → lista pistas disponibles
-//    GET  action=reservas        → próximas reservas del usuario
+//  Endpoints:
+//    GET  action=saldo
+//    GET  action=pistas
+//    GET  action=reservas
+//    POST action=reservar
+//    POST action=cancelar
 // =============================================
 session_start();
 require_once 'config.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Protección: debe estar logado
 if (!isset($_SESSION['usuario_id'])) {
     http_response_code(401);
     echo json_encode(['ok' => false, 'msg' => 'No autenticado']);
     exit;
 }
 
-$usuario_id = (int) $_SESSION['usuario_id'];
-$action     = $_GET['action'] ?? $_POST['action'] ?? '';
-$pdo        = getDB();
+$id_user = (int) $_SESSION['usuario_id'];
+$action  = $_GET['action'] ?? $_POST['action'] ?? '';
+$pdo     = getDB();
 
-// ─── GET: SALDO ───────────────────────────────────────────────
+// ─── SALDO ────────────────────────────────────────────────────
 if ($action === 'saldo') {
-    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id = ?');
-    $stmt->execute([$usuario_id]);
-    $row = $stmt->fetch();
-    echo json_encode(['ok' => true, 'saldo' => number_format($row['saldo'], 2)]);
+    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+    $stmt->execute([$id_user]);
+    $fila = $stmt->fetch();
+    echo json_encode(['ok' => true, 'saldo' => number_format($fila['saldo'], 2)]);
     exit;
 }
 
-// ─── GET: PISTAS DISPONIBLES ──────────────────────────────────
+// ─── PISTAS DISPONIBLES ───────────────────────────────────────
+// api.php
 if ($action === 'pistas') {
-    $fecha      = $_GET['fecha'] ?? date('Y-m-d');
-    $hora_ini   = $_GET['hora_inicio'] ?? '10:00';
-    $hora_fin   = $_GET['hora_fin']    ?? '11:00';
-
-    // Pistas sin reserva activa en ese tramo horario y fecha
-    $stmt = $pdo->prepare('
-        SELECT p.* FROM pistas p
-        WHERE p.activa = 1
-          AND p.id NOT IN (
-            SELECT r.pista_id FROM reservas r
-            WHERE r.fecha   = ?
-              AND r.estado  = "activa"
-              AND r.hora_inicio < ?
-              AND r.hora_fin    > ?
-          )
-    ');
-    $stmt->execute([$fecha, $hora_fin, $hora_ini]);
-    echo json_encode(['ok' => true, 'pistas' => $stmt->fetchAll()]);
+    // Hemos quitado "descripcion" de la lista de campos
+    $stmt = $pdo->prepare("
+        SELECT 
+            id_pista AS id, 
+            nombre_pista AS nombre, 
+            tipo_deporte AS deporte, 
+            precio_hora AS precio 
+        FROM pistas 
+        WHERE estado = 'disponible'
+    ");
+    $stmt->execute();
+    echo json_encode(['ok' => true, 'pistas' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
-// ─── GET: PRÓXIMAS RESERVAS ───────────────────────────────────
+// ─── PRÓXIMAS RESERVAS DEL USUARIO ───────────────────────────
 if ($action === 'reservas') {
     $stmt = $pdo->prepare('
-        SELECT r.id, p.nombre AS pista, p.deporte, r.fecha, r.hora_inicio, r.hora_fin, r.estado
+        SELECT 
+            r.id_reserva AS id, 
+            p.nombre_pista AS pista, 
+            p.tipo_deporte AS deporte,
+            r.fecha, 
+            r.hora_inicio, 
+            r.hora_fin, 
+            r.estado_pago
         FROM reservas r
-        JOIN pistas p ON p.id = r.pista_id
-        WHERE r.usuario_id = ?
-          AND r.estado      = "activa"
-          AND r.fecha      >= CURDATE()
+        JOIN pistas p ON p.id_pista = r.id_pista
+        WHERE r.id_user     = ?
+          AND r.estado_pago != "cancelada"
+          AND r.fecha       >= CURDATE()
         ORDER BY r.fecha, r.hora_inicio
         LIMIT 10
     ');
-    $stmt->execute([$usuario_id]);
+    $stmt->execute([$id_user]);
     echo json_encode(['ok' => true, 'reservas' => $stmt->fetchAll()]);
     exit;
 }
 
-// ─── POST: RESERVAR ───────────────────────────────────────────
+// ─── RESERVAR ─────────────────────────────────────────────────
 if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $pista_id   = (int)   ($_POST['pista_id']    ?? 0);
-    $fecha      = trim(    $_POST['fecha']        ?? '');
-    $hora_ini   = trim(    $_POST['hora_inicio']  ?? '');
-    $hora_fin   = trim(    $_POST['hora_fin']     ?? '');
+    $id_pista   = (int)  ($_POST['pista_id']    ?? 0);
+    $fecha      = trim(   $_POST['fecha']        ?? '');
+    $hora_ini   = trim(   $_POST['hora_inicio']  ?? '');
+    $hora_fin   = trim(   $_POST['hora_fin']     ?? '');
 
-    if (!$pista_id || !$fecha || !$hora_ini || !$hora_fin) {
+    if (!$id_pista || !$fecha || !$hora_ini || !$hora_fin) {
         echo json_encode(['ok' => false, 'msg' => 'Faltan datos.']);
         exit;
     }
 
-    // Verificar que la pista existe y está activa
-    $stmt = $pdo->prepare('SELECT * FROM pistas WHERE id = ? AND activa = 1');
-    $stmt->execute([$pista_id]);
+    // Obtener pista
+    $stmt = $pdo->prepare("SELECT * FROM pistas WHERE id_pista = ? AND estado = 'disponible'");
+    $stmt->execute([$id_pista]);
     $pista = $stmt->fetch();
     if (!$pista) {
-        echo json_encode(['ok' => false, 'msg' => 'Pista no encontrada.']);
+        echo json_encode(['ok' => false, 'msg' => 'Pista no disponible.']);
         exit;
     }
 
-    // Verificar saldo suficiente
-    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id = ?');
-    $stmt->execute([$usuario_id]);
+    // Verificar saldo
+    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+    $stmt->execute([$id_user]);
     $saldo_actual = (float) $stmt->fetchColumn();
 
-    if ($saldo_actual < $pista['precio']) {
+    if ($saldo_actual < $pista['precio_hora']) {
         echo json_encode(['ok' => false, 'msg' => 'Saldo insuficiente.']);
         exit;
     }
 
-    // Verificar que no haya solapamiento
+    // Verificar solapamiento de horario
     $stmt = $pdo->prepare('
-        SELECT id FROM reservas
-        WHERE pista_id    = ?
+        SELECT id_reserva FROM reservas
+        WHERE id_pista    = ?
           AND fecha       = ?
-          AND estado      = "activa"
-          AND hora_inicio < ?
-          AND hora_fin    > ?
+          AND estado_pago != "cancelada"
+          AND hora_inicio  < ?
+          AND hora_fin     > ?
     ');
-    $stmt->execute([$pista_id, $fecha, $hora_fin, $hora_ini]);
+    $stmt->execute([$id_pista, $fecha, $hora_fin, $hora_ini]);
     if ($stmt->fetch()) {
         echo json_encode(['ok' => false, 'msg' => 'La pista ya está reservada en ese horario.']);
         exit;
     }
 
-    // Crear reserva y descontar saldo (transacción)
+    // Crear reserva y descontar saldo
     $pdo->beginTransaction();
     try {
         $stmt = $pdo->prepare('
-            INSERT INTO reservas (usuario_id, pista_id, fecha, hora_inicio, hora_fin)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO reservas (id_user, id_pista, fecha, hora_inicio, hora_fin, precio_final, estado_pago)
+            VALUES (?, ?, ?, ?, ?, ?, "pagado")
         ');
-        $stmt->execute([$usuario_id, $pista_id, $fecha, $hora_ini, $hora_fin]);
+        $stmt->execute([$id_user, $id_pista, $fecha, $hora_ini, $hora_fin, $pista['precio_hora']]);
 
-        $nuevo_saldo = $saldo_actual - $pista['precio'];
-        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = ? WHERE id = ?');
-        $stmt->execute([$nuevo_saldo, $usuario_id]);
+        $nuevo_saldo = $saldo_actual - $pista['precio_hora'];
+        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = ? WHERE id_user = ?');
+        $stmt->execute([$nuevo_saldo, $id_user]);
 
         $pdo->commit();
         $_SESSION['usuario_saldo'] = $nuevo_saldo;
@@ -147,22 +148,22 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// ─── POST: CANCELAR ───────────────────────────────────────────
+// ─── CANCELAR ─────────────────────────────────────────────────
 if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $reserva_id = (int) ($_POST['reserva_id'] ?? 0);
+    $id_reserva = (int) ($_POST['reserva_id'] ?? 0);
 
-    if (!$reserva_id) {
+    if (!$id_reserva) {
         echo json_encode(['ok' => false, 'msg' => 'ID de reserva inválido.']);
         exit;
     }
 
-    // Verificar que la reserva pertenece al usuario y está activa
+    // Verificar que la reserva pertenece al usuario
     $stmt = $pdo->prepare('
-        SELECT r.*, p.precio FROM reservas r
-        JOIN pistas p ON p.id = r.pista_id
-        WHERE r.id = ? AND r.usuario_id = ? AND r.estado = "activa"
+        SELECT r.*, p.precio_hora FROM reservas r
+        JOIN pistas p ON p.id_pista = r.id_pista
+        WHERE r.id_reserva = ? AND r.id_user = ? AND r.estado_pago != "cancelada"
     ');
-    $stmt->execute([$reserva_id, $usuario_id]);
+    $stmt->execute([$id_reserva, $id_user]);
     $reserva = $stmt->fetch();
 
     if (!$reserva) {
@@ -170,20 +171,19 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Cancelar y devolver saldo (transacción)
+    // Cancelar y devolver saldo
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('UPDATE reservas SET estado = "cancelada" WHERE id = ?');
-        $stmt->execute([$reserva_id]);
+        $stmt = $pdo->prepare('UPDATE reservas SET estado_pago = "cancelada" WHERE id_reserva = ?');
+        $stmt->execute([$id_reserva]);
 
-        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = saldo + ? WHERE id = ?');
-        $stmt->execute([$reserva['precio'], $usuario_id]);
+        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = saldo + ? WHERE id_user = ?');
+        $stmt->execute([$reserva['precio_hora'], $id_user]);
 
         $pdo->commit();
 
-        // Leer nuevo saldo
-        $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id = ?');
-        $stmt->execute([$usuario_id]);
+        $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+        $stmt->execute([$id_user]);
         $nuevo_saldo = (float) $stmt->fetchColumn();
         $_SESSION['usuario_saldo'] = $nuevo_saldo;
 
@@ -194,11 +194,10 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     } catch (Exception $e) {
         $pdo->rollBack();
-        echo json_encode(['ok' => false, 'msg' => 'Error al cancelar la reserva.']);
+        echo json_encode(['ok' => false, 'msg' => 'Error al cancelar.']);
     }
     exit;
 }
 
-// Acción no reconocida
 http_response_code(400);
 echo json_encode(['ok' => false, 'msg' => 'Acción no válida.']);

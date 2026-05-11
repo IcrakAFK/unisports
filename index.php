@@ -79,7 +79,6 @@ $saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
 <!-- BOTÓN FLOTANTE (FAB) -->
 <button class="fab" title="Nueva Reserva" onclick="abrirModal()">+</button>
 
-<!-- MODAL NUEVA RESERVA -->
 <div class="modal-overlay" id="modalReserva">
   <div class="modal-box">
 
@@ -93,7 +92,7 @@ $saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
 
       <div class="form-group">
         <label>Pista</label>
-        <select id="selectPista"></select>
+        <select id="selectPista" onchange="actualizarResumen()"></select>
       </div>
 
       <div class="form-group">
@@ -104,20 +103,55 @@ $saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
       <div class="form-row">
         <div class="form-group">
           <label>Hora inicio</label>
-          <input type="time" id="inputHoraIni" value="10:00">
+          <input type="time" id="inputHoraIni" value="10:00" onchange="actualizarResumen()">
         </div>
         <div class="form-group">
           <label>Hora fin</label>
-          <input type="time" id="inputHoraFin" value="11:00">
+          <input type="time" id="inputHoraFin" value="11:00" onchange="actualizarResumen()">
         </div>
       </div>
+
+      <hr class="separador-modal">
+
+    <div class="form-group">
+        <label>Monitor</label>
+        <select id="selectMonitor" onchange="actualizarResumen()"></select>
     </div>
 
-    <div class="modal-footer">
-      <button class="btn-secundario" onclick="cerrarModal()">Cancelar</button>
-      <button class="btn-reservar" style="width:auto;padding:8px 20px" onclick="confirmarReserva()">Confirmar Reserva</button>
+    <div class="form-row">
+        <div class="form-group flex-2">
+            <label>Material</label>
+            <select id="selectMaterial" onchange="actualizarResumen()"></select>
+        </div>
+        <div class="form-group flex-1">
+            <label>Cantidad</label>
+            <input type="number" id="cantidadMaterial" value="1" min="1" max="10" onchange="actualizarResumen()">
+        </div>
     </div>
 
+    <div id="resumenPago" class="resumen-contenedor">
+        <h6 class="resumen-titulo">Resumen del pago</h6>
+
+        <div class="resumen-linea">
+            <span>Precio Pista:</span>
+            <span id="resumenPista">0.00 €</span>
+        </div>
+
+        <div class="resumen-linea">
+            <span>Monitor:</span>
+            <span id="resumenMonitor">0.00 €</span>
+        </div>
+
+        <div class="resumen-linea">
+            <span>Material:</span>
+            <span id="resumenMaterial">0.00 €</span>
+        </div>
+
+        <div class="resumen-linea total">
+            <span>TOTAL:</span>
+            <span id="resumenTotal">0.00 €</span>
+        </div>
+    </div>
   </div>
 </div>
 
