@@ -451,3 +451,131 @@ footer {
     padding-top: 4px;
     margin-top: 4px;
 }
+
+/* =============================================
+   ESPECÍFICO PARA PERFIL (Namespace: .perfil-container)
+   ============================================= */
+
+/* Contenedor para centrar la tarjeta */
+.perfil-wrapper {
+    max-width: 500px; 
+    width: 100%; 
+    margin: 0 auto;
+}
+
+.perfil-container .card-body {
+    text-align: left; /* Sobrescribe el text-align:center general de .card-body */
+}
+
+.perfil-container .user-avatar {
+    margin-bottom: 20px;
+}
+
+/* Estilos de la tabla de datos */
+.tabla-perfil {
+    width: 100%; 
+    border-collapse: collapse; 
+    font-size: 0.95rem;
+}
+
+.tabla-perfil tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.tabla-perfil tr:last-child {
+    border-bottom: none;
+}
+
+.tabla-perfil td {
+    padding: 10px 8px;
+}
+
+.tabla-perfil td.label {
+    font-weight: 700; 
+    color: #0056b3; 
+    width: 40%;
+}
+
+/* Botón Volver */
+.btn-volver {
+    margin-top: 20px; 
+    text-align: center;
+}
+
+.btn-volver a {
+    display: inline-block; 
+    background: #0056b3; 
+    color: #fff; 
+    padding: 9px 24px; 
+    text-decoration: none; 
+    font-weight: 700;
+    transition: background 0.3s;
+}
+
+.btn-volver a:hover {
+    background: #004099;
+}
+
+/* =============================================
+   ESPECÍFICO PARA DETALLE DE RESERVAS
+   ============================================= */
+
+.main-detalle {
+    padding: 24px 20px;
+    min-height: 80vh;
+}
+
+.container-detalle {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.card-detalle {
+    background: #fff;
+    border: 1px solid #dee2e6;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.tabla-detalle {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.tabla-detalle thead {
+    background: #0056b3;
+    color: #fff;
+}
+
+.tabla-detalle th, 
+.tabla-detalle td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    font-size: 0.9rem;
+}
+
+.tabla-detalle .badge-info {
+    display: block;
+    font-size: 0.8rem;
+    color: #6c757d;
+    margin-top: 4px;
+}
+
+.tabla-detalle .precio-resaltado {
+    font-weight: 700;
+    color: #28a745;
+}
+
+/* Ajuste móvil para la tabla */
+@media (max-width: 600px) {
+    .tabla-detalle th, .tabla-detalle td {
+        padding: 8px;
+        font-size: 0.8rem;
+    }
+}

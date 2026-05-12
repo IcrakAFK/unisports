@@ -27,8 +27,8 @@ $saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
   <a class="navbar-brand" href="#">🏆 UniSport Booking</a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
-    <a href="#misReservas">Mis Reservas</a>
-    <a href="#perfil">Perfil</a>
+    <a href="reservas.php">Mis Reservas</a>
+    <a href="perfil.php">Perfil</a>
     <a href="logout.php" class="btn-logout">Cerrar Sesión</a>
   </div>
 </nav>
