@@ -53,25 +53,21 @@ $user = $stmt->fetch();
           </tr>
           <tr>
             <td class="label">Nombre</td>
-            <td><?= htmlspecialchars($user['nombre']) ?></td>
+            <td><?=$user['nombre'] ?></td>
           </tr>
           <tr>
             <td class="label">Email</td>
-            <td><?= htmlspecialchars($user['email']) ?></td>
+            <td><?= $user['email'] ?></td>
           </tr>
           <tr>
             <td class="label">Rol</td>
-            <td><?= ucfirst($user['rol']) ?></td>
+            <td><?= $user['rol'] ?></td>
           </tr>
           <tr>
             <td class="label">Saldo</td>
             <td>
-              <span class="badge-saldo"><?= number_format($user['saldo'], 2) ?> €</span>
+              <span class="badge-saldo"><?= $user['saldo'] ?> €</span>
             </td>
-          </tr>
-          <tr>
-            <td class="label">Registro</td>
-            <td><?= date('d/m/Y H:i', strtotime($user['fecha_registro'])) ?></td>
           </tr>
         </table>
 

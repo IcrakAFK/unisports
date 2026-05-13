@@ -7,9 +7,9 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-$nombre = htmlspecialchars($_SESSION['usuario_nombre']);
-$email  = htmlspecialchars($_SESSION['usuario_email']);
-$saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
+$nombre = $_SESSION['usuario_nombre'];
+$email  = $_SESSION['usuario_email'];
+$saldo  = (float)$_SESSION['usuario_saldo'];
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -152,8 +152,15 @@ $saldo  = number_format((float)$_SESSION['usuario_saldo'], 2);
             <span id="resumenTotal">0.00 €</span>
         </div>
     </div>
-  </div>
-</div>
+    </div><!-- /modal-body -->
+
+    <div class="modal-footer">
+      <button class="btn-secundario" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-confirmar" onclick="confirmarReserva()">✅ Confirmar Reserva</button>
+    </div>
+
+  </div><!-- /modal-box -->
+</div><!-- /modal-overlay -->
 
 <div id="toastContainer"></div>
 

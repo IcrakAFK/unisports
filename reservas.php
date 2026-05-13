@@ -8,7 +8,7 @@ if (!isset($_SESSION['usuario_id'])) {
     exit;
 }
 
-$nombre = htmlspecialchars($_SESSION['usuario_nombre']);
+$nombre = $_SESSION['usuario_nombre'];
 ?>
 <!DOCTYPE html>
 <html lang="es">

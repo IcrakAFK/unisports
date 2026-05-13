@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <h5>Iniciar Sesión</h5>
 
                 <?php if ($error): ?>
-                    <div class="alerta error-login"><?= htmlspecialchars($error) ?></div>
+                    <div class="alerta error-login"><?= $error ?></div>
                 <?php endif; ?>
 
                 <form method="POST" action="login.php">

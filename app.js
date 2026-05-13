@@ -134,7 +134,34 @@ function cargarSelectPistas() {
         opt.textContent = p.nombre + ' – ' + parseFloat(p.precio).toFixed(2) + ' €/h';
         sel.appendChild(opt);
       }
+      actualizarResumen();
     });
+}
+
+function cargarComplementos() {
+    // Cargar Monitores desde la API
+    fetch(API + '?action=monitores')
+        .then(r => r.json())
+        .then(data => {
+            let sel = document.getElementById('selectMonitor');
+            sel.innerHTML = '<option value="0" data-precio="0">Sin monitor</option>';
+            data.monitores.forEach(m => {
+                sel.innerHTML += `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} (+${m.precio}€)</option>`;
+            });
+            actualizarResumen();
+        });
+
+    // Cargar Materiales desde la API
+    fetch(API + '?action=materiales')
+        .then(r => r.json())
+        .then(data => {
+            let sel = document.getElementById('selectMaterial');
+            sel.innerHTML = '<option value="0" data-precio="0">No necesito material</option>';
+            data.materiales.forEach(mat => {
+                sel.innerHTML += `<option value="${mat.id}" data-precio="${mat.precio}">${mat.nombre} (+${mat.precio}€/u)</option>`;
+            });
+            actualizarResumen();
+        });
 }
 
 function abrirModalConPista(id, nombre) {
@@ -148,12 +175,61 @@ function abrirModalConPista(id, nombre) {
   }
 }
 
+// ---- RESUMEN DE PAGO ----
+function actualizarResumen() {
+  // Precio pista (€/hora) × horas
+  var selPista = document.getElementById('selectPista');
+  var precioHora = 0;
+  if (selPista && selPista.selectedIndex >= 0) {
+    var textoOpt = selPista.options[selPista.selectedIndex].textContent;
+    // El texto tiene el formato "Nombre – 10.00 €/h"
+    var match = textoOpt.match(/([\d.]+)\s*€\/h/);
+    if (match) precioHora = parseFloat(match[1]);
+  }
+
+  var horaIni = document.getElementById('inputHoraIni').value;
+  var horaFin = document.getElementById('inputHoraFin').value;
+  var horas = 0;
+  if (horaIni && horaFin && horaFin > horaIni) {
+    var ini = horaIni.split(':').map(Number);
+    var fin = horaFin.split(':').map(Number);
+    horas = ((fin[0] * 60 + fin[1]) - (ini[0] * 60 + ini[1])) / 60;
+  }
+  var costePista = precioHora * horas;
+
+  // Precio monitor
+  var selMon = document.getElementById('selectMonitor');
+  var precioMonitor = 0;
+  if (selMon && selMon.selectedIndex >= 0) {
+    precioMonitor = parseFloat(selMon.options[selMon.selectedIndex].getAttribute('data-precio')) || 0;
+  }
+
+  // Precio material × cantidad
+  var selMat = document.getElementById('selectMaterial');
+  var precioMaterial = 0;
+  if (selMat && selMat.selectedIndex >= 0) {
+    precioMaterial = parseFloat(selMat.options[selMat.selectedIndex].getAttribute('data-precio')) || 0;
+  }
+  var cantidad = parseInt(document.getElementById('cantidadMaterial').value) || 1;
+  var costeMaterial = precioMaterial * cantidad;
+
+  var total = costePista + precioMonitor + costeMaterial;
+
+  document.getElementById('resumenPista').textContent    = costePista.toFixed(2) + ' €';
+  document.getElementById('resumenMonitor').textContent  = precioMonitor.toFixed(2) + ' €';
+  document.getElementById('resumenMaterial').textContent = costeMaterial.toFixed(2) + ' €';
+  document.getElementById('resumenTotal').textContent    = total.toFixed(2) + ' €';
+}
+
 // ---- CONFIRMAR RESERVA ----
 function confirmarReserva() {
   var pista_id    = document.getElementById('selectPista').value;
   var fecha       = document.getElementById('inputFecha').value;
   var hora_inicio = document.getElementById('inputHoraIni').value;
   var hora_fin    = document.getElementById('inputHoraFin').value;
+  var monitor_id  = document.getElementById('selectMonitor').value;
+  var material_id = document.getElementById('selectMaterial').value;
+  var cantidad    = document.getElementById('cantidadMaterial').value;
 
   if (!pista_id || !fecha || !hora_inicio || !hora_fin) {
     mostrarMsgModal('Completa todos los campos.', 'error');
@@ -170,6 +246,9 @@ function confirmarReserva() {
   datos.append('fecha',       fecha);
   datos.append('hora_inicio', hora_inicio);
   datos.append('hora_fin',    hora_fin);
+  datos.append('monitor_id',  monitor_id  || 0);
+  datos.append('material_id', material_id || 0);
+  datos.append('cantidad',    cantidad    || 1);
 
   fetch(API, { method: 'POST', body: datos })
     .then(function(r) { return r.json(); })
@@ -212,4 +291,5 @@ document.addEventListener('DOMContentLoaded', function() {
   cargarPistas();
   cargarSelectPistas();
   actualizarSaldo();
+  cargarComplementos();
 });
