@@ -16,9 +16,9 @@ $pdo     = getDB();
 
 // ─── SALDO ────────────────────────────────────────────────────
 if ($action === 'saldo') {
-    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
-    $stmt->execute([$id_user]);
-    $fila = $stmt->fetch();
+    $consulta = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+    $consulta->execute([$id_user]);
+    $fila = $consulta->fetch();
     echo json_encode(['ok' => true, 'saldo' => number_format($fila['saldo'], 2)]);
     exit;
 }
@@ -26,8 +26,7 @@ if ($action === 'saldo') {
 // ─── PISTAS DISPONIBLES ───────────────────────────────────────
 // api.php
 if ($action === 'pistas') {
-    // Hemos quitado "descripcion" de la lista de campos
-    $stmt = $pdo->prepare("
+    $consulta = $pdo->prepare("
         SELECT 
             id_pista AS id, 
             nombre_pista AS nombre, 
@@ -36,31 +35,28 @@ if ($action === 'pistas') {
         FROM pistas 
         WHERE estado = 'disponible'
     ");
-    $stmt->execute();
-    echo json_encode(['ok' => true, 'pistas' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    $consulta->execute();
+    echo json_encode(['ok' => true, 'pistas' => $consulta->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
 // --- OBTENER MONITORES ---
 if ($action === 'monitores') {
-    // Usamos "precio_sesion AS precio" para que JS encuentre "precio"
-    $stmt = $pdo->query("SELECT id_monitor AS id, nombre, precio_sesion AS precio FROM monitores WHERE disponibilidad = 1");
-    echo json_encode(['ok' => true, 'monitores' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    $consulta = $pdo->query("SELECT id_monitor AS id, nombre, precio_sesion AS precio FROM monitores WHERE disponibilidad = 1");
+    echo json_encode(['ok' => true, 'monitores' => $consulta->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
 // --- OBTENER MATERIAL ---
 if ($action === 'materiales') {
-    // OJO: Tu tabla se llama "material", no "materiales"
-    // OJO: Tu columna se llama "nombre_material", usamos AS para JS
-    $stmt = $pdo->query("SELECT id_material AS id, nombre_material AS nombre, precio_alquiler AS precio FROM material");
-    echo json_encode(['ok' => true, 'materiales' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+    $consulta = $pdo->query("SELECT id_material AS id, nombre_material AS nombre, precio_alquiler AS precio FROM material");
+    echo json_encode(['ok' => true, 'materiales' => $consulta->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
 // ─── PRÓXIMAS RESERVAS DEL USUARIO ───────────────────────────
 if ($action === 'reservas') {
-    $stmt = $pdo->prepare('
+    $consulta = $pdo->prepare('
         SELECT 
             r.id_reserva AS id, 
             p.nombre_pista AS pista, 
@@ -77,8 +73,8 @@ if ($action === 'reservas') {
         ORDER BY r.fecha, r.hora_inicio
         LIMIT 10
     ');
-    $stmt->execute([$id_user]);
-    echo json_encode(['ok' => true, 'reservas' => $stmt->fetchAll()]);
+    $consulta->execute([$id_user]);
+    echo json_encode(['ok' => true, 'reservas' => $consulta->fetchAll()]);
     exit;
 }
 
@@ -98,9 +94,9 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Obtener pista
-    $stmt = $pdo->prepare("SELECT * FROM pistas WHERE id_pista = ? AND estado = 'disponible'");
-    $stmt->execute([$id_pista]);
-    $pista = $stmt->fetch();
+    $consulta = $pdo->prepare("SELECT * FROM pistas WHERE id_pista = ? AND estado = 'disponible'");
+    $consulta->execute([$id_pista]);
+    $pista = $consulta->fetch();
     if (!$pista) {
         echo json_encode(['ok' => false, 'msg' => 'Pista no disponible.']);
         exit;
@@ -108,33 +104,33 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Calcular horas y coste de pista
     $minutos    = (strtotime($hora_fin) - strtotime($hora_ini)) / 60;
-    $horas      = $minutos / 60;
+    $horas       = $minutos / 60;
     $coste_pista = round((float)$pista['precio_hora'] * $horas, 2);
 
     // Coste monitor (opcional)
     $coste_monitor = 0.0;
     if ($id_monitor > 0) {
-        $stmt = $pdo->prepare('SELECT precio_sesion FROM monitores WHERE id_monitor = ? AND disponibilidad = 1');
-        $stmt->execute([$id_monitor]);
-        $mon = $stmt->fetchColumn();
+        $consulta = $pdo->prepare('SELECT precio_sesion FROM monitores WHERE id_monitor = ? AND disponibilidad = 1');
+        $consulta->execute([$id_monitor]);
+        $mon = $consulta->fetchColumn();
         if ($mon !== false) $coste_monitor = (float)$mon;
     }
 
     // Coste material (opcional)
     $coste_material = 0.0;
     if ($id_material > 0) {
-        $stmt = $pdo->prepare('SELECT precio_alquiler FROM material WHERE id_material = ?');
-        $stmt->execute([$id_material]);
-        $mat = $stmt->fetchColumn();
+        $consulta = $pdo->prepare('SELECT precio_alquiler FROM material WHERE id_material = ?');
+        $consulta->execute([$id_material]);
+        $mat = $consulta->fetchColumn();
         if ($mat !== false) $coste_material = round((float)$mat * $cantidad, 2);
     }
 
     $coste_total = $coste_pista + $coste_monitor + $coste_material;
 
     // Verificar saldo
-    $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
-    $stmt->execute([$id_user]);
-    $saldo_actual = (float) $stmt->fetchColumn();
+    $consulta = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+    $consulta->execute([$id_user]);
+    $saldo_actual = (float) $consulta->fetchColumn();
 
     if ($saldo_actual < $coste_total) {
         echo json_encode(['ok' => false, 'msg' => 'Saldo insuficiente. Necesitas ' . number_format($coste_total, 2) . ' €.']);
@@ -142,7 +138,7 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Verificar solapamiento de horario
-    $stmt = $pdo->prepare('
+    $consulta = $pdo->prepare('
         SELECT id_reserva FROM reservas
         WHERE id_pista    = ?
           AND fecha       = ?
@@ -150,8 +146,8 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
           AND hora_inicio  < ?
           AND hora_fin     > ?
     ');
-    $stmt->execute([$id_pista, $fecha, $hora_fin, $hora_ini]);
-    if ($stmt->fetch()) {
+    $consulta->execute([$id_pista, $fecha, $hora_fin, $hora_ini]);
+    if ($consulta->fetch()) {
         echo json_encode(['ok' => false, 'msg' => 'La pista ya está reservada en ese horario.']);
         exit;
     }
@@ -159,32 +155,32 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Crear reserva y descontar saldo
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('
+        $consulta = $pdo->prepare('
             INSERT INTO reservas (id_user, id_pista, fecha, hora_inicio, hora_fin, precio_final, estado_pago)
             VALUES (?, ?, ?, ?, ?, ?, "pagado")
         ');
-        $stmt->execute([$id_user, $id_pista, $fecha, $hora_ini, $hora_fin, $coste_total]);
+        $consulta->execute([$id_user, $id_pista, $fecha, $hora_ini, $hora_fin, $coste_total]);
         $id_reserva_nueva = $pdo->lastInsertId();
 
         // Guardar monitor si se eligió
         if ($id_monitor > 0) {
-            $stmt = $pdo->prepare('
+            $consulta = $pdo->prepare('
                 INSERT IGNORE INTO reserva_monitor (id_reserva, id_monitor) VALUES (?, ?)
             ');
-            $stmt->execute([$id_reserva_nueva, $id_monitor]);
+            $consulta->execute([$id_reserva_nueva, $id_monitor]);
         }
 
         // Guardar material si se eligió
         if ($id_material > 0) {
-            $stmt = $pdo->prepare('
+            $consulta = $pdo->prepare('
                 INSERT IGNORE INTO reserva_material (id_reserva, id_material, cantidad) VALUES (?, ?, ?)
             ');
-            $stmt->execute([$id_reserva_nueva, $id_material, $cantidad]);
+            $consulta->execute([$id_reserva_nueva, $id_material, $cantidad]);
         }
 
         $nuevo_saldo = $saldo_actual - $coste_total;
-        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = ? WHERE id_user = ?');
-        $stmt->execute([$nuevo_saldo, $id_user]);
+        $consulta = $pdo->prepare('UPDATE usuarios SET saldo = ? WHERE id_user = ?');
+        $consulta->execute([$nuevo_saldo, $id_user]);
 
         $pdo->commit();
         $_SESSION['usuario_saldo'] = $nuevo_saldo;
@@ -211,13 +207,13 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Verificar que la reserva pertenece al usuario
-    $stmt = $pdo->prepare('
+    $consulta = $pdo->prepare('
         SELECT r.*, p.precio_hora FROM reservas r
         JOIN pistas p ON p.id_pista = r.id_pista
         WHERE r.id_reserva = ? AND r.id_user = ? AND r.estado_pago != "cancelada"
     ');
-    $stmt->execute([$id_reserva, $id_user]);
-    $reserva = $stmt->fetch();
+    $consulta->execute([$id_reserva, $id_user]);
+    $reserva = $consulta->fetch();
 
     if (!$reserva) {
         echo json_encode(['ok' => false, 'msg' => 'Reserva no encontrada.']);
@@ -227,17 +223,17 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Cancelar y devolver saldo
     $pdo->beginTransaction();
     try {
-        $stmt = $pdo->prepare('UPDATE reservas SET estado_pago = "cancelada" WHERE id_reserva = ?');
-        $stmt->execute([$id_reserva]);
+        $consulta = $pdo->prepare('UPDATE reservas SET estado_pago = "cancelada" WHERE id_reserva = ?');
+        $consulta->execute([$id_reserva]);
 
-        $stmt = $pdo->prepare('UPDATE usuarios SET saldo = saldo + ? WHERE id_user = ?');
-        $stmt->execute([$reserva['precio_hora'], $id_user]);
+        $consulta = $pdo->prepare('UPDATE usuarios SET saldo = saldo + ? WHERE id_user = ?');
+        $consulta->execute([$reserva['precio_hora'], $id_user]);
 
         $pdo->commit();
 
-        $stmt = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
-        $stmt->execute([$id_user]);
-        $nuevo_saldo = (float) $stmt->fetchColumn();
+        $consulta = $pdo->prepare('SELECT saldo FROM usuarios WHERE id_user = ?');
+        $consulta->execute([$id_user]);
+        $nuevo_saldo = (float) $consulta->fetchColumn();
         $_SESSION['usuario_saldo'] = $nuevo_saldo;
 
         echo json_encode([

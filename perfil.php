@@ -8,9 +8,9 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 $pdo  = getDB();
-$stmt = $pdo->prepare('SELECT * FROM usuarios WHERE id_user = ?');
-$stmt->execute([$_SESSION['usuario_id']]);
-$user = $stmt->fetch();
+$consulta = $pdo->prepare('SELECT * FROM usuarios WHERE id_user = ?');
+$consulta->execute([$_SESSION['usuario_id']]);
+$user = $consulta->fetch();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -23,8 +23,8 @@ $user = $stmt->fetch();
 </head>
 <body>
 
-<nav class="navbar">
-  <a class="navbar-brand" href="#">🏆 UniSport Booking</a>
+<nav class="nav-barra">
+  <a class="nav-barra-brand" href="#">🏆 UniSport Booking</a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
     <a href="reservas.php">Mis Reservas</a>
@@ -36,9 +36,9 @@ $user = $stmt->fetch();
 <div class="main">
   <div class="perfil-wrapper perfil-container">
 
-    <div class="card">
-      <div class="card-header">MI PERFIL</div>
-      <div class="card-body">
+    <div class="caja">
+      <div class="caja-header">MI PERFIL</div>
+      <div class="caja-body">
 
         <div class="user-avatar">
           <svg viewBox="0 0 24 24" fill="currentColor">

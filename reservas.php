@@ -21,8 +21,8 @@ $nombre = $_SESSION['usuario_nombre'];
 </head>
 <body>
 
-<nav class="navbar">
-    <a class="navbar-brand" href="index.php">🏆 UniSport Booking</a>
+<nav class="nav-barra">
+    <a class="nav-barra-brand" href="index.php">🏆 UniSport Booking</a>
     <div class="nav-links">
         <a href="index.php">Inicio</a>
         <a href="reservas.php">Mis Reservas</a>
@@ -33,9 +33,9 @@ $nombre = $_SESSION['usuario_nombre'];
 
 <div class="main-detalle">
     <div class="container-detalle">
-        <h5 class="section-title">📋 Historial Detallado de Reservas</h5>
+        <h5 class="section-titulo">📋 Historial Detallado de Reservas</h5>
         
-        <div class="card-detalle">
+        <div class="caja-detalle">
             <div class="table-responsive">
                 <table class="tabla-detalle">
                     <thead>

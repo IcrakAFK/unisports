@@ -23,8 +23,8 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
 <body>
 
 <!-- NAVBAR -->
-<nav class="navbar">
-  <a class="navbar-brand" href="#">🏆 UniSport Booking</a>
+<nav class="nav-barra">
+  <a class="nav-barra-brand">🏆 UniSport Booking</a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
     <a href="reservas.php">Mis Reservas</a>
@@ -37,10 +37,10 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
 <div class="main">
 
   <!-- SIDEBAR -->
-  <div class="sidebar" id="perfil">
-    <div class="card">
-      <div class="card-header">USUARIO</div>
-      <div class="card-body">
+  <div class="lat-barra" id="perfil">
+    <div class="caja">
+      <div class="caja-header">USUARIO</div>
+      <div class="caja-body">
         <div class="user-avatar">
           <svg viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
@@ -57,13 +57,13 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
   <div class="contenido">
 
     <!-- PRÓXIMAS RESERVAS -->
-    <h5 class="section-title" id="misReservas">📅 Mis Próximas Reservas</h5>
+    <h5 class="section-titulo" id="misReservas">📅 Mis Próximas Reservas</h5>
     <div class="grid" id="listaReservas">
       <p class="muted">Cargando reservas...</p>
     </div>
 
     <!-- PISTAS DISPONIBLES -->
-    <h5 class="section-title">🏟️ Pistas Disponibles</h5>
+    <h5 class="section-titulo">🏟️ Pistas Disponibles</h5>
     <div class="grid" id="listaPistas">
       <p class="muted">Cargando pistas...</p>
     </div>
@@ -77,7 +77,7 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
 </footer>
 
 <!-- BOTÓN FLOTANTE (FAB) -->
-<button class="fab" title="Nueva Reserva" onclick="abrirModal()">+</button>
+<button class="flotante" title="Nueva Reserva" onclick="abrirModal()">+</button>
 
 <div class="modal-overlay" id="modalReserva">
   <div class="modal-box">
@@ -103,7 +103,7 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
       <div class="form-row">
         <div class="form-group">
           <label>Hora inicio</label>
-          <input type="time" id="inputHoraIni" value="10:00" onchange="actualizarResumen()">
+          <input type="time" id="inputHoraInicio" value="10:00" onchange="actualizarResumen()">
         </div>
         <div class="form-group">
           <label>Hora fin</label>
@@ -111,7 +111,7 @@ $saldo  = (float)$_SESSION['usuario_saldo'];
         </div>
       </div>
 
-      <hr class="separador-modal">
+      <hr class="separador">
 
     <div class="form-group">
         <label>Monitor</label>

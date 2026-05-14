@@ -15,7 +15,7 @@ body {
 }
 
 /* ---- NAVBAR ---- */
-.navbar {
+.nav-barra {
   background: #0056b3;
   padding: 12px 20px;
   display: flex;
@@ -25,7 +25,7 @@ body {
   gap: 10px;
 }
 
-.navbar-brand {
+.nav-barra-brand {
   color: #fff;
   font-weight: 700;
   font-size: 1.3rem;
@@ -69,17 +69,17 @@ body {
 }
 
 /* ---- SIDEBAR ---- */
-.sidebar {
+.lat-barra {
   width: 240px;
   min-width: 240px;
 }
 
-.card {
+.caja {
   background: #fff;
   border: 1px solid #dee2e6;
 }
 
-.card-header {
+.caja-header {
   background: #0056b3;
   color: #fff;
   font-weight: 700;
@@ -87,7 +87,7 @@ body {
   padding: 12px;
 }
 
-.card-body {
+.caja-body {
   padding: 20px;
   text-align: center;
 }
@@ -109,7 +109,7 @@ body {
   color: #0056b3;
 }
 
-.card-body p { margin-bottom: 8px; font-size: 0.95rem; }
+.caja-body p { margin-bottom: 8px; font-size: 0.95rem; }
 .muted { color: #6c757d; font-size: 0.85rem; }
 
 .badge-saldo {
@@ -124,7 +124,7 @@ body {
 /* ---- CONTENIDO ---- */
 .contenido { flex: 1; }
 
-.section-title {
+.section-titulo {
   font-weight: 700;
   color: #0056b3;
   border-bottom: 2px solid #0056b3;
@@ -142,7 +142,7 @@ body {
 }
 
 /* ---- TARJETA RESERVA ---- */
-.reserva-card {
+.reserva-caja {
   background: #fff;
   border: 1px solid #dee2e6;
   border-left: 4px solid #0056b3;
@@ -150,15 +150,15 @@ body {
 }
 
 .sport-icon { font-size: 1.4rem; }
-.reserva-card strong { display: block; margin: 4px 0 2px; }
-.reserva-card .fecha { color: #6c757d; font-size: 0.85rem; }
+.reserva-caja strong { display: block; margin: 4px 0 2px; }
+.reserva-caja .fecha { color: #6c757d; font-size: 0.85rem; }
 
 /* ---- TARJETA PISTA ---- */
-.pista-card { background: #fff; border: 1px solid #dee2e6; }
-.pista-card .card-header { font-size: 0.95rem; padding: 10px 14px; text-align: left; }
-.pista-card .card-body { text-align: left; padding: 14px; }
-.pista-card .desc { color: #6c757d; font-size: 0.85rem; margin-bottom: 6px; }
-.pista-card .precio { font-weight: 700; margin-bottom: 12px; }
+.pista-caja { background: #fff; border: 1px solid #dee2e6; }
+.pista-caja .caja-header { font-size: 0.95rem; padding: 10px 14px; text-align: left; }
+.pista-caja .caja-body { text-align: left; padding: 14px; }
+.pista-caja .desc { color: #6c757d; font-size: 0.85rem; margin-bottom: 6px; }
+.pista-caja .precio { font-weight: 700; margin-bottom: 12px; }
 
 /* ---- BOTONES ---- */
 .btn-reservar {
@@ -187,7 +187,7 @@ body {
 .btn-cancelar:hover { background: #b02a37; }
 
 /* ---- FAB ---- */
-.fab {
+.flotante {
   position: fixed;
   bottom: 28px;
   right: 28px;
@@ -206,7 +206,7 @@ body {
   z-index: 999;
 }
 
-.fab:hover { background: #004099; }
+.flotante:hover { background: #004099; }
 
 /* ---- FOOTER ---- */
 footer {
@@ -266,7 +266,7 @@ footer {
       gap: .6rem;
       padding: 1rem 1.5rem;
       border-top: 1px solid var(--color-border, #e5e7eb);
-      background: var(--color-card-bg, #fff);
+      background: var(--color-caja-bg, #fff);
       border-radius: 0 0 16px 16px;
     }
 
@@ -328,7 +328,7 @@ footer {
 /* ---- RESPONSIVE ---- */
 @media (max-width: 768px) {
   .main { flex-direction: column; }
-  .sidebar { width: 100%; min-width: unset; }
+  .lat-barra { width: 100%; min-width: unset; }
   .grid { grid-template-columns: 1fr 1fr; }
 }
 
@@ -348,8 +348,8 @@ footer {
     min-height: 90vh; /* Ajustado para que no tape el footer si existe */
 }
 
-/* Usamos el prefijo .login-screen para que no afecte a otros .card de la app */
-.login-screen .login-card {
+/* Usamos el prefijo .login-screen para que no afecte a otros .caja de la app */
+.login-screen .login-caja {
     background: #fff;
     border: 1px solid #dee2e6;
     width: 100%;
@@ -407,7 +407,7 @@ footer {
 
 /* Estilos del Modal y Resumen */
 
-.separador-modal {
+.separador {
     margin: 15px 0;
     border: 0;
     border-top: 1px dashed #ccc;
@@ -457,7 +457,7 @@ footer {
     margin: 0 auto;
 }
 
-.perfil-container .card-body {
+.perfil-container .caja-body {
     text-align: left; /* Sobrescribe el text-align:center general de .card-body */
 }
 
@@ -524,7 +524,7 @@ footer {
     margin: 0 auto;
 }
 
-.card-detalle {
+.caja-detalle {
     background: #fff;
     border: 1px solid #dee2e6;
     padding: 10px;

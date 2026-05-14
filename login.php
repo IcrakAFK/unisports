@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
 
     if ($email == '' || $password == '') {
-        $error = 'Por favor, rellena todos los campos.';
+        $error = 'Rellena todos los campos';
     } else {
         $db = getDB();
         
@@ -34,20 +34,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (password_verify($password, $usuario['password']) || $password == $usuario['password']) {
                 
                 // Guardar datos en la sesión
-                $_SESSION['usuario_id']     = $usuario['id_user'];
+                $_SESSION['usuario_id'] = $usuario['id_user'];
                 $_SESSION['usuario_nombre'] = $usuario['nombre'];
-                $_SESSION['usuario_email']  = $usuario['email'];
-                $_SESSION['usuario_saldo']  = $usuario['saldo'];
+                $_SESSION['usuario_email'] = $usuario['email'];
+                $_SESSION['usuario_saldo'] = $usuario['saldo'];
                 
                 header('Location: index.php');
                 exit;
                 
             } else {
-                $error = 'Email o contraseña incorrectos.';
+                $error = 'Email o contraseña incorrectos';
             }
             
         } else {
-            $error = 'Email o contraseña incorrectos.';
+            $error = 'Email o contraseña incorrectos';
         }
     }
 }
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
     <div class="login-screen">
-        <div class="login-card">
+        <div class="login-caja">
             <div class="login-header">🏆 UniSport Booking</div>
             <div class="login-body">
                 <h5>Iniciar Sesión</h5>
@@ -76,13 +76,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <form method="POST" action="login.php">
                     <div class="form-group">
                         <label>Email</label>
-                        <input type="email" name="email" required placeholder="ejemplo@correo.com">
+                        <input type="email" name="email" required>
                     </div>       
                     <div class="form-group">
                         <label>Contraseña</label>
-                        <input type="password" name="password" required placeholder="********">
+                        <input type="password" name="password" required>
                     </div>          
-                    <button type="submit" class="btn-entrar">Entrar al Sistema</button>
+                    <button type="submit" class="btn-entrar">Entrar</button>
                 </form>
             </div>
         </div>

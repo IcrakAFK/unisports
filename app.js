@@ -2,6 +2,19 @@
 //  UNISPORT BOOKING - app.js  (SIN BOOTSTRAP)
 // =============================================
 
+// ---- INICIO ----
+document.addEventListener('DOMContentLoaded', function() {
+  var hoy = new Date().toISOString().split('T')[0];
+  document.getElementById('inputFecha').min   = hoy;
+  document.getElementById('inputFecha').value = hoy;
+
+  cargarReservas();
+  cargarPistas();
+  cargarSelectPistas();
+  actualizarSaldo();
+  cargarComplementos();
+});
+
 var API = 'api.php';
 
 var iconos = {
@@ -60,7 +73,7 @@ function cargarReservas() {
       var html = '';
       for (var i = 0; i < data.reservas.length; i++) {
         var r = data.reservas[i];
-        html += '<div class="reserva-card">' +
+        html += '<div class="reserva-caja">' +
           '<span class="sport-icon">' + icono(r.deporte) + '</span>' +
           '<strong>' + r.pista + '</strong>' +
           '<span class="fecha">' + formatarFecha(r.fecha) + ' | ' + r.hora_inicio.slice(0,5) + ' – ' + r.hora_fin.slice(0,5) + ' h</span>' +
@@ -79,7 +92,7 @@ function formatarFecha(f) {
 
 // ---- CANCELAR ----
 function cancelarReserva(id) {
-  if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe.')) return;
+  if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe')) return;
 
   var datos = new FormData();
   datos.append('action', 'cancelar');
@@ -103,15 +116,15 @@ function cargarPistas() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (!data.ok || data.pistas.length === 0) {
-        contenedor.innerHTML = '<p class="muted">No hay pistas disponibles.</p>';
+        contenedor.innerHTML = '<p class="muted">No hay pistas disponibles</p>';
         return;
       }
       var html = '';
       for (var i = 0; i < data.pistas.length; i++) {
         var p = data.pistas[i];
-        html += '<div class="pista-card">' +
-          '<div class="card-header">' + icono(p.deporte) + ' ' + p.nombre + '</div>' +
-          '<div class="card-body">' +
+        html += '<div class="pista-caja">' +
+          '<div class="caja-header">' + icono(p.deporte) + ' ' + p.nombre + '</div>' +
+          '<div class="caja-body">' +
           '<p class="desc">' + (p.descripcion || '') + '</p>' +
           '<p class="precio">' + parseFloat(p.precio).toFixed(2) + ' € / hora</p>' +
           '<button class="btn-reservar" onclick="abrirModalConPista(' + p.id + ', \'' + p.nombre.replace(/'/g,"\\'") + '\')">Reservar</button>' +
@@ -139,7 +152,6 @@ function cargarSelectPistas() {
 }
 
 function cargarComplementos() {
-    // Cargar Monitores desde la API
     fetch(API + '?action=monitores')
         .then(r => r.json())
         .then(data => {
@@ -177,21 +189,19 @@ function abrirModalConPista(id, nombre) {
 
 // ---- RESUMEN DE PAGO ----
 function actualizarResumen() {
-  // Precio pista (€/hora) × horas
   var selPista = document.getElementById('selectPista');
   var precioHora = 0;
   if (selPista && selPista.selectedIndex >= 0) {
     var textoOpt = selPista.options[selPista.selectedIndex].textContent;
-    // El texto tiene el formato "Nombre – 10.00 €/h"
     var match = textoOpt.match(/([\d.]+)\s*€\/h/);
     if (match) precioHora = parseFloat(match[1]);
   }
 
-  var horaIni = document.getElementById('inputHoraIni').value;
+  var horaInicio = document.getElementById('inputHoraInicio').value;
   var horaFin = document.getElementById('inputHoraFin').value;
   var horas = 0;
-  if (horaIni && horaFin && horaFin > horaIni) {
-    var ini = horaIni.split(':').map(Number);
+  if (horaInicio && horaFin && horaFin > horaInicio) {
+    var ini = horaInicio.split(':').map(Number);
     var fin = horaFin.split(':').map(Number);
     horas = ((fin[0] * 60 + fin[1]) - (ini[0] * 60 + ini[1])) / 60;
   }
@@ -241,14 +251,14 @@ function confirmarReserva() {
   }
 
   var datos = new FormData();
-  datos.append('action',      'reservar');
-  datos.append('pista_id',    pista_id);
-  datos.append('fecha',       fecha);
+  datos.append('action', 'reservar');
+  datos.append('pista_id', pista_id);
+  datos.append('fecha', fecha);
   datos.append('hora_inicio', hora_inicio);
-  datos.append('hora_fin',    hora_fin);
-  datos.append('monitor_id',  monitor_id  || 0);
+  datos.append('hora_fin', hora_fin);
+  datos.append('monitor_id', monitor_id  || 0);
   datos.append('material_id', material_id || 0);
-  datos.append('cantidad',    cantidad    || 1);
+  datos.append('cantidad', cantidad    || 1);
 
   fetch(API, { method: 'POST', body: datos })
     .then(function(r) { return r.json(); })
@@ -280,16 +290,3 @@ function mostrarToast(texto, tipo) {
   cont.appendChild(div);
   setTimeout(function() { div.remove(); }, 4000);
 }
-
-// ---- INICIO ----
-document.addEventListener('DOMContentLoaded', function() {
-  var hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('inputFecha').min   = hoy;
-  document.getElementById('inputFecha').value = hoy;
-
-  cargarReservas();
-  cargarPistas();
-  cargarSelectPistas();
-  actualizarSaldo();
-  cargarComplementos();
-});
