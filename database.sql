@@ -12,7 +12,7 @@ CREATE TABLE usuarios (
     nombre           VARCHAR(100)     NOT NULL,
     email            VARCHAR(255)     NOT NULL UNIQUE,
     password         VARCHAR(255)     NOT NULL,
-    rol              ENUM('alumno','admin','externo') NOT NULL DEFAULT 'alumno',
+    rol              ENUM('alumno','externo','entrenador','admin') NOT NULL DEFAULT 'alumno',
     saldo            DECIMAL(10,2)    NOT NULL DEFAULT 0.00,
     fecha_registro   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
 );
@@ -27,12 +27,15 @@ CREATE TABLE pistas (
 );
 
 -- ---- MONITORES ----
+-- Un monitor puede tener un usuario asociado (para que pueda hacer login)
 CREATE TABLE monitores (
     id_monitor       INT(11)          AUTO_INCREMENT PRIMARY KEY,
+    id_user          INT(11)          DEFAULT NULL,
     nombre           VARCHAR(100)     NOT NULL,
     especialidad     VARCHAR(50)      NOT NULL,
     precio_sesion    DECIMAL(10,2)    NOT NULL,
-    disponibilidad   TINYINT(1)       NOT NULL DEFAULT 1
+    disponibilidad   TINYINT(1)       NOT NULL DEFAULT 1,
+    FOREIGN KEY (id_user) REFERENCES usuarios(id_user) ON DELETE SET NULL
 );
 
 -- ---- MATERIAL ----
@@ -53,10 +56,10 @@ CREATE TABLE reservas (
     hora_inicio      TIME             NOT NULL,
     hora_fin         TIME             NOT NULL,
     precio_final     DECIMAL(10,2)    NOT NULL DEFAULT 0.00,
-    estado_pago      ENUM('pendiente','pagado') NOT NULL DEFAULT 'pendiente',
+    estado_pago      ENUM('pendiente','pagado','cancelada') NOT NULL DEFAULT 'pendiente',
     FOREIGN KEY (id_user)    REFERENCES usuarios(id_user),
     FOREIGN KEY (id_pista)   REFERENCES pistas(id_pista),
-    FOREIGN KEY (id_monitor) REFERENCES monitores(id_monitor)
+    FOREIGN KEY (id_monitor) REFERENCES monitores(id_monitor) ON DELETE SET NULL
 );
 
 -- ---- RESERVA_MATERIAL ----
@@ -65,18 +68,25 @@ CREATE TABLE reserva_material (
     id_material      INT(11)          NOT NULL,
     cantidad         INT(11)          NOT NULL DEFAULT 1,
     PRIMARY KEY (id_reserva, id_material),
-    FOREIGN KEY (id_reserva)  REFERENCES reservas(id_reserva),
+    FOREIGN KEY (id_reserva)  REFERENCES reservas(id_reserva) ON DELETE CASCADE,
     FOREIGN KEY (id_material) REFERENCES material(id_material)
 );
 
 -- =============================================
 --  DATOS DE PRUEBA
+--  Contraseñas hasheadas con password_hash($pass, PASSWORD_DEFAULT)
+--  alumno:       password123
+--  externo:      externa456
+--  entrenador:   entrenador789
+--  admin:        admin2026
 -- =============================================
 
--- Usuario de prueba (contraseña: password123)
 INSERT INTO usuarios (nombre, email, password, rol, saldo) VALUES
-('Pepe Alumno', 'pepe.alumno@unisport.es', 'password123', 'alumno', 50.00),
-('Admin', 'admin@unisport.es', 'password123', 'admin', 0.00);
+('Pepe Alumno',      'pepe.alumno@unisport.es',      'password', 'alumno',     50.00),
+('Ana Externa',      'ana.externa@gmail.com',         'password', 'externo',    20.00),
+('Carlos Gómez',     'carlos.entrenador@unisport.es', 'password', 'entrenador', 0.00),
+('Laura Pérez',      'laura.entrenador@unisport.es',  'password', 'entrenador', 0.00),
+('Admin UniSport',   'admin@unisport.es',             'password', 'admin',      0.00);
 
 -- Pistas
 INSERT INTO pistas (nombre_pista, tipo_deporte, precio_hora, estado) VALUES
@@ -87,11 +97,11 @@ INSERT INTO pistas (nombre_pista, tipo_deporte, precio_hora, estado) VALUES
 ('Pista Voleibol',   'Voleibol',    4.00,  'disponible'),
 ('Pista Tenis 2',    'Tenis',       5.00,  'mantenimiento');
 
--- Monitores
-INSERT INTO monitores (nombre, especialidad, precio_sesion, disponibilidad) VALUES
-('Carlos Gómez',  'Tenis',   20.00, 1),
-('Laura Pérez',   'Fútbol',  15.00, 1),
-('Mario Ruiz',    'Pádel',   18.00, 1);
+-- Monitores (vinculados a sus usuarios)
+INSERT INTO monitores (id_user, nombre, especialidad, precio_sesion, disponibilidad) VALUES
+(3, 'Carlos Gómez', 'Tenis',  20.00, 1),
+(4, 'Laura Pérez',  'Fútbol', 15.00, 1),
+(NULL, 'Mario Ruiz', 'Pádel', 18.00, 1);
 
 -- Material
 INSERT INTO material (nombre_material, stock_total, precio_alquiler) VALUES

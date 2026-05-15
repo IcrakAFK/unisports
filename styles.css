@@ -1,607 +1,190 @@
 /* ===========================
    UNISPORT BOOKING - styles.css
-   SIN BOOTSTRAP - CSS PURO
 =========================== */
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font-family: 'Roboto', sans-serif;
-  background: #f0f2f5;
-}
+body { font-family: 'Roboto', sans-serif; background: #f0f2f5; color: #333; }
 
 /* ---- NAVBAR ---- */
 .nav-barra {
-  background: #0056b3;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
+  background: #0056b3; padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
 }
-
-.nav-barra-brand {
-  color: #fff;
-  font-weight: 700;
-  font-size: 1.3rem;
-  text-decoration: none;
-  letter-spacing: 1px;
-}
-
-.nav-links {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.nav-links a {
-  color: rgba(255,255,255,0.85);
-  text-decoration: none;
-  font-size: 0.95rem;
-}
-
-.nav-links a:hover { color: #fff; }
-
-.btn-logout {
-  border: 1px solid rgba(255,255,255,0.5);
-  color: #fff;
-  background: transparent;
-  padding: 5px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  text-decoration: none;
-}
-
-.btn-logout:hover { background: rgba(255,255,255,0.15); }
+.nav-barra-brand { color:#fff; font-weight:700; font-size:1.3rem; text-decoration:none; letter-spacing:1px; }
+.nav-links { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.nav-links a { color:rgba(255,255,255,.85); text-decoration:none; font-size:.95rem; }
+.nav-links a:hover { color:#fff; }
+.btn-logout { border:1px solid rgba(255,255,255,.5); color:#fff; background:transparent; padding:5px 12px; font-size:.85rem; cursor:pointer; text-decoration:none; }
+.btn-logout:hover { background:rgba(255,255,255,.15); }
 
 /* ---- LAYOUT ---- */
-.main {
-  padding: 24px 20px;
-  display: flex;
-  gap: 24px;
-  align-items: flex-start;
-}
+.main { padding:24px 20px; display:flex; gap:24px; align-items:flex-start; }
 
 /* ---- SIDEBAR ---- */
-.lat-barra {
-  width: 240px;
-  min-width: 240px;
-}
+.lat-barra { width:240px; min-width:240px; }
 
-.caja {
-  background: #fff;
-  border: 1px solid #dee2e6;
-}
+/* ---- CAJAS ---- */
+.caja { background:#fff; border:1px solid #dee2e6; }
+.caja-header { background:#0056b3; color:#fff; font-weight:700; text-align:center; padding:12px; }
+.caja-body { padding:20px; text-align:center; }
+.user-avatar { width:70px; height:70px; background:#e9ecef; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; }
+.user-avatar svg { width:40px; height:40px; color:#0056b3; }
+.caja-body p { margin-bottom:8px; font-size:.95rem; }
+.muted { color:#6c757d; font-size:.85rem; }
 
-.caja-header {
-  background: #0056b3;
-  color: #fff;
-  font-weight: 700;
-  text-align: center;
-  padding: 12px;
-}
+/* ---- SALDO ---- */
+.badge-saldo { display:inline-block; background:#0056b3; color:#fff; font-size:.9rem; padding:6px 14px; margin-top:4px; }
 
-.caja-body {
-  padding: 20px;
-  text-align: center;
-}
+/* ---- ROL BADGES ---- */
+.badge-rol { display:inline-block; padding:3px 10px; font-size:.75rem; font-weight:700; letter-spacing:.5px; }
+.badge-rol-alumno     { background:#cfe2ff; color:#0a58ca; }
+.badge-rol-externo    { background:#fff3cd; color:#664d03; }
+.badge-rol-entrenador { background:#d1e7dd; color:#0f5132; }
+.badge-rol-admin      { background:#f8d7da; color:#842029; }
 
-.user-avatar {
-  width: 70px;
-  height: 70px;
-  background: #e9ecef;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-}
-
-.user-avatar svg {
-  width: 40px;
-  height: 40px;
-  color: #0056b3;
-}
-
-.caja-body p { margin-bottom: 8px; font-size: 0.95rem; }
-.muted { color: #6c757d; font-size: 0.85rem; }
-
-.badge-saldo {
-  display: inline-block;
-  background: #0056b3;
-  color: #fff;
-  font-size: 0.9rem;
-  padding: 6px 14px;
-  margin-top: 4px;
-}
+/* ---- ESTADO BADGES ---- */
+.badge-estado-ok   { background:#d1e7dd; color:#0f5132; padding:3px 8px; font-size:.78rem; font-weight:700; }
+.badge-estado-mal  { background:#f8d7da; color:#842029; padding:3px 8px; font-size:.78rem; font-weight:700; }
+.badge-estado-pend { background:#fff3cd; color:#664d03; padding:3px 8px; font-size:.78rem; font-weight:700; }
 
 /* ---- CONTENIDO ---- */
-.contenido { flex: 1; }
+.contenido { flex:1; }
+.section-titulo { font-weight:700; color:#0056b3; border-bottom:2px solid #0056b3; padding-bottom:4px; margin-bottom:16px; font-size:1.1rem; }
 
-.section-titulo {
-  font-weight: 700;
-  color: #0056b3;
-  border-bottom: 2px solid #0056b3;
-  padding-bottom: 4px;
-  margin-bottom: 16px;
-  font-size: 1.1rem;
-}
-
-/* ---- GRIDS ---- */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 32px;
-}
+/* ---- GRID ---- */
+.grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; margin-bottom:32px; }
 
 /* ---- TARJETA RESERVA ---- */
-.reserva-caja {
-  background: #fff;
-  border: 1px solid #dee2e6;
-  border-left: 4px solid #0056b3;
-  padding: 14px;
-}
-
-.sport-icon { font-size: 1.4rem; }
-.reserva-caja strong { display: block; margin: 4px 0 2px; }
-.reserva-caja .fecha { color: #6c757d; font-size: 0.85rem; }
+.reserva-caja { background:#fff; border:1px solid #dee2e6; border-left:4px solid #0056b3; padding:14px; }
+.sport-icon { font-size:1.4rem; }
+.reserva-caja strong { display:block; margin:4px 0 2px; }
+.reserva-caja .fecha { color:#6c757d; font-size:.85rem; display:block; }
+.precio-resaltado { font-weight:700; color:#28a745; font-size:.9rem; display:block; margin-top:4px; }
 
 /* ---- TARJETA PISTA ---- */
-.pista-caja { background: #fff; border: 1px solid #dee2e6; }
-.pista-caja .caja-header { font-size: 0.95rem; padding: 10px 14px; text-align: left; }
-.pista-caja .caja-body { text-align: left; padding: 14px; }
-.pista-caja .desc { color: #6c757d; font-size: 0.85rem; margin-bottom: 6px; }
-.pista-caja .precio { font-weight: 700; margin-bottom: 12px; }
+.pista-caja { background:#fff; border:1px solid #dee2e6; }
+.pista-caja .caja-header { font-size:.95rem; padding:10px 14px; text-align:left; }
+.pista-caja .caja-body   { text-align:left; padding:14px; }
+.pista-caja .desc  { color:#6c757d; font-size:.85rem; margin-bottom:6px; }
+.pista-caja .precio{ font-weight:700; margin-bottom:12px; }
+
+/* ---- KPI (admin) ---- */
+.kpi-caja       { background:#fff; border:1px solid #dee2e6; padding:20px; text-align:center; }
+.kpi-caja.kpi-green { border-left:4px solid #28a745; }
+.kpi-valor      { font-size:2rem; font-weight:700; color:#0056b3; }
+.kpi-caja.kpi-green .kpi-valor { color:#28a745; }
+.kpi-label      { font-size:.85rem; color:#6c757d; margin-top:4px; }
+
+/* ---- AGENDA (entrenador) ---- */
+.agenda-dia     { margin-bottom:24px; }
+.agenda-fecha   { font-weight:700; color:#0056b3; margin-bottom:10px; font-size:1rem; text-transform:capitalize; }
+.agenda-item    { margin-bottom:8px; display:flex; flex-direction:column; gap:3px; }
 
 /* ---- BOTONES ---- */
-.btn-reservar {
-  background: #28a745;
-  border: none;
-  color: #fff;
-  padding: 8px 0;
-  width: 100%;
-  font-weight: 600;
-  font-size: 0.95rem;
-  cursor: pointer;
-}
-
-.btn-reservar:hover { background: #218838; }
-
-.btn-cancelar {
-  background: #dc3545;
-  border: none;
-  color: #fff;
-  padding: 5px 10px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.btn-cancelar:hover { background: #b02a37; }
-
-/* ---- FAB ---- */
-.flotante {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  width: 56px;
-  height: 56px;
-  background: #0056b3;
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  font-size: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 12px rgba(0,86,179,0.45);
-  cursor: pointer;
-  z-index: 999;
-}
-
-.flotante:hover { background: #004099; }
+.btn-reservar { background:#28a745; border:none; color:#fff; padding:8px 0; width:100%; font-weight:600; font-size:.95rem; cursor:pointer; }
+.btn-reservar:hover { background:#218838; }
+.btn-cancelar { background:#dc3545; border:none; color:#fff; padding:5px 10px; font-size:.8rem; cursor:pointer; margin-top:8px; }
+.btn-cancelar:hover { background:#b02a37; }
+.btn-confirmar { background:#0056b3; color:#fff; border:none; padding:.6rem 1.4rem; font-size:.92rem; font-weight:600; cursor:pointer; }
+.btn-confirmar:hover { background:#004099; }
+.btn-secundario { background:transparent; color:#333; border:1.5px solid #d1d5db; padding:.6rem 1.2rem; font-size:.92rem; cursor:pointer; }
+.btn-secundario:hover { border-color:#0056b3; color:#0056b3; }
 
 /* ---- FOOTER ---- */
-footer {
-  text-align: center;
-  color: #6c757d;
-  font-size: 0.8rem;
-  border-top: 1px solid #dee2e6;
-  padding: 16px;
-  margin-top: 20px;
-}
+footer { text-align:center; color:#6c757d; font-size:.8rem; border-top:1px solid #dee2e6; padding:16px; margin-top:20px; }
+footer a { color:#0056b3; text-decoration:none; }
+footer a:hover { text-decoration:underline; }
 
 /* ---- MODAL ---- */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.5);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-overlay.activo { display: flex; }
-
-.modal-box {
-  background: #fff;
-  width: 100%;
-  max-width: 440px;
-  margin: 20px;
-}
-
-.modal-header {
-  background: #0056b3;
-  color: #fff;
-  padding: 16px 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.modal-header h5 { font-weight: 700; margin: 0; }
-
-.modal-cerrar {
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 1.4rem;
-  cursor: pointer;
-}
-
-.modal-body { padding: 20px; }
-
-.modal-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: .6rem;
-      padding: 1rem 1.5rem;
-      border-top: 1px solid var(--color-border, #e5e7eb);
-      background: var(--color-caja-bg, #fff);
-      border-radius: 0 0 16px 16px;
-    }
+.modal-overlay { display:none; position:fixed; top:0;left:0; width:100%;height:100%; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.activo { display:flex; }
+.modal-box { background:#fff; width:100%; max-width:460px; margin:20px; }
+.modal-header { background:#0056b3; color:#fff; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; }
+.modal-header h5 { font-weight:700; margin:0; }
+.modal-cerrar { background:none; border:none; color:#fff; font-size:1.4rem; cursor:pointer; }
+.modal-body { padding:20px; }
+.modal-footer { display:flex; justify-content:flex-end; gap:.6rem; padding:1rem 1.5rem; border-top:1px solid #dee2e6; background:#fff; }
 
 /* ---- FORMULARIO ---- */
-.form-group { margin-bottom: 16px; }
-
-.form-group label {
-  display: block;
-  font-weight: 700;
-  margin-bottom: 6px;
-  font-size: 0.9rem;
-}
-
-.form-group input,
-.form-group select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ced4da;
-  font-size: 0.95rem;
-  font-family: inherit;
-}
-
-.form-row { display: flex; gap: 12px; }
-.form-row .form-group { flex: 1; }
+.form-group { margin-bottom:16px; }
+.form-group label { display:block; font-weight:700; margin-bottom:6px; font-size:.9rem; }
+.label-hint { font-weight:400; color:#6c757d; font-size:.82rem; }
+.form-group input, .form-group select { width:100%; padding:8px 10px; border:1px solid #ced4da; font-size:.95rem; font-family:inherit; }
+.form-row { display:flex; gap:12px; }
+.form-row .form-group { flex:1; }
+.flex-2 { flex:2!important; }
+.flex-1 { flex:1!important; }
 
 /* ---- ALERTAS ---- */
-.alerta {
-  padding: 10px 14px;
-  margin-bottom: 14px;
-  font-size: 0.9rem;
-  display: none;
-}
-
-.alerta.error   { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
-.alerta.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
-.alerta.visible { display: block; }
+.alerta { padding:10px 14px; margin-bottom:14px; font-size:.9rem; display:none; }
+.alerta.error   { background:#f8d7da; color:#842029; border:1px solid #f5c2c7; }
+.alerta.success { background:#d1e7dd; color:#0f5132; border:1px solid #badbcc; }
+.alerta.visible { display:block; }
 
 /* ---- TOAST ---- */
-#toastContainer {
-  position: fixed;
-  top: 70px;
-  right: 16px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+#toastContainer { position:fixed; top:70px; right:16px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+.toast { padding:12px 18px; font-weight:600; font-size:.9rem; min-width:240px; }
+.toast.success { background:#28a745; color:#fff; }
+.toast.error   { background:#dc3545; color:#fff; }
 
-.toast {
-  padding: 12px 18px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  min-width: 240px;
-}
+/* ---- DETALLE / HISTORIAL ---- */
+.main-detalle { padding:24px 20px; min-height:80vh; }
+.container-detalle { max-width:1100px; margin:0 auto; }
+.caja-detalle { background:#fff; border:1px solid #dee2e6; padding:10px; }
+.table-responsive { overflow-x:auto; }
+.tabla-detalle { width:100%; border-collapse:collapse; margin-top:10px; }
+.tabla-detalle thead { background:#0056b3; color:#fff; }
+.tabla-detalle th, .tabla-detalle td { padding:12px 15px; text-align:left; border-bottom:1px solid #eee; font-size:.9rem; }
+.tabla-detalle .badge-info { display:block; font-size:.78rem; color:#6c757d; margin-top:3px; }
 
-.toast.success { background: #28a745; color: #fff; }
-.toast.error   { background: #dc3545; color: #fff; }
+/* ---- RESUMEN PAGO (modal) ---- */
+.separador { margin:15px 0; border:0; border-top:1px dashed #ccc; }
+.resumen-contenedor { background:#f8f9fa; padding:12px; border:1px solid #dee2e6; margin-top:15px; }
+.resumen-titulo { margin-bottom:8px; color:#0056b3; font-weight:700; font-size:1rem; }
+.resumen-linea { display:flex; justify-content:space-between; font-size:.9rem; margin-bottom:4px; }
+.resumen-linea.total { font-weight:bold; font-size:1rem; border-top:1px solid #ccc; padding-top:4px; margin-top:4px; }
+
+/* ---- LOGIN ---- */
+.login-screen { display:flex; align-items:center; justify-content:center; min-height:90vh; }
+.login-caja { background:#fff; border:1px solid #dee2e6; width:100%; max-width:420px; margin:20px; box-shadow:0 4px 10px rgba(0,0,0,.06); }
+.login-header { background:#0056b3; color:#fff; text-align:center; padding:20px; font-weight:700; font-size:1.2rem; }
+.login-body { padding:28px; }
+.login-body h5 { font-size:1.1rem; margin-bottom:20px; color:#333; }
+.btn-entrar { width:100%; background:#0056b3; color:#fff; border:none; padding:12px; font-size:1rem; font-weight:700; cursor:pointer; margin-top:10px; }
+.btn-entrar:hover { background:#004099; }
+.login-registro { text-align:center; margin-top:16px; font-size:.88rem; color:#6c757d; }
+.login-registro a { color:#0056b3; text-decoration:none; font-weight:700; }
+.alerta.error-login   { display:block; background:#f8d7da; color:#842029; border:1px solid #f5c2c7; padding:10px; margin-bottom:15px; }
+.alerta.success-login { display:block; background:#d1e7dd; color:#0f5132; border:1px solid #badbcc; padding:10px; margin-bottom:15px; }
+
+/* ---- PERFIL ---- */
+.perfil-wrapper { max-width:500px; width:100%; margin:0 auto; }
+.perfil-container .caja-body { text-align:left; }
+.tabla-perfil { width:100%; border-collapse:collapse; font-size:.95rem; }
+.tabla-perfil tr { border-bottom:1px solid #dee2e6; }
+.tabla-perfil tr:last-child { border-bottom:none; }
+.tabla-perfil td { padding:10px 8px; }
+.tabla-perfil td.label { font-weight:700; color:#0056b3; width:40%; }
+.btn-volver { margin-top:20px; text-align:center; }
+.btn-volver a { display:inline-block; background:#0056b3; color:#fff; padding:9px 24px; text-decoration:none; font-weight:700; }
+.btn-volver a:hover { background:#004099; }
+
+/* ---- PÁGINAS LEGALES ---- */
+.legal-wrapper { max-width:800px; margin:32px auto; padding:0 20px; }
+.legal-wrapper h1 { font-size:1.5rem; color:#0056b3; margin-bottom:8px; }
+.legal-wrapper h2 { font-size:1.1rem; color:#333; margin:24px 0 8px; }
+.legal-wrapper p, .legal-wrapper li { font-size:.95rem; line-height:1.7; color:#444; }
+.legal-wrapper ul { margin-left:20px; margin-bottom:12px; }
+.legal-wrapper a { color:#0056b3; }
 
 /* ---- RESPONSIVE ---- */
-@media (max-width: 768px) {
-  .main { flex-direction: column; }
-  .lat-barra { width: 100%; min-width: unset; }
-  .grid { grid-template-columns: 1fr 1fr; }
+@media (max-width:768px) {
+  .main { flex-direction:column; }
+  .lat-barra { width:100%; min-width:unset; }
+  .grid { grid-template-columns:1fr 1fr; }
 }
-
-@media (max-width: 480px) {
-  .grid { grid-template-columns: 1fr; }
+@media (max-width:480px) {
+  .grid { grid-template-columns:1fr; }
+  .tabla-detalle th, .tabla-detalle td { padding:8px; font-size:.8rem; }
 }
-
-/* =============================================
-   ESPECÍFICO PARA LOGIN (Namespace: .login-screen)
-   ============================================= */
-
-/* Contenedor principal que envuelve toda la página de login */
-.login-screen {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 90vh; /* Ajustado para que no tape el footer si existe */
-}
-
-/* Usamos el prefijo .login-screen para que no afecte a otros .caja de la app */
-.login-screen .login-caja {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    width: 100%;
-    max-width: 400px;
-    margin: 20px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-}
-
-.login-screen .login-header {
-    background: #0056b3;
-    color: #fff;
-    text-align: center;
-    padding: 20px;
-    font-weight: 700;
-    font-size: 1.2rem;
-}
-
-.login-screen .login-body {
-    padding: 28px;
-}
-
-.login-screen h5 {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    color: #333;
-}
-
-/* Botón específico de login para no confundir con .btn-reservar */
-.login-screen .btn-entrar {
-    width: 100%;
-    background: #0056b3;
-    color: #fff;
-    border: none;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background 0.3s;
-}
-
-.login-screen .btn-entrar:hover {
-    background: #004099;
-}
-
-/* Reutilizamos la clase .alerta que ya tienes, pero aseguramos su estilo aquí */
-.login-screen .alerta.error-login {
-    display: block; /* Forzamos visibilidad si hay error */
-    background: #f8d7da;
-    color: #842029;
-    border: 1px solid #f5c2c7;
-    padding: 10px;
-    margin-bottom: 15px;
-}
-
-/* Estilos del Modal y Resumen */
-
-.separador {
-    margin: 15px 0;
-    border: 0;
-    border-top: 1px dashed #ccc;
-}
-
-.flex-2 { flex: 2; }
-.flex-1 { flex: 1; }
-
-.resumen-contenedor {
-    background: #f8f9fa;
-    padding: 12px;
-    border-radius: 4px;
-    margin-top: 15px;
-    border: 1px solid #dee2e6;
-}
-
-.resumen-titulo {
-    margin-bottom: 8px;
-    color: #0056b3;
-    font-weight: 700;
-    font-size: 1rem;
-}
-
-.resumen-linea {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-}
-
-.resumen-linea.total {
-    font-weight: bold;
-    font-size: 1rem;
-    border-top: 1px solid #ccc;
-    padding-top: 4px;
-    margin-top: 4px;
-}
-
-/* =============================================
-   ESPECÍFICO PARA PERFIL (Namespace: .perfil-container)
-   ============================================= */
-
-/* Contenedor para centrar la tarjeta */
-.perfil-wrapper {
-    max-width: 500px; 
-    width: 100%; 
-    margin: 0 auto;
-}
-
-.perfil-container .caja-body {
-    text-align: left; /* Sobrescribe el text-align:center general de .card-body */
-}
-
-.perfil-container .user-avatar {
-    margin-bottom: 20px;
-}
-
-/* Estilos de la tabla de datos */
-.tabla-perfil {
-    width: 100%; 
-    border-collapse: collapse; 
-    font-size: 0.95rem;
-}
-
-.tabla-perfil tr {
-    border-bottom: 1px solid #dee2e6;
-}
-
-.tabla-perfil tr:last-child {
-    border-bottom: none;
-}
-
-.tabla-perfil td {
-    padding: 10px 8px;
-}
-
-.tabla-perfil td.label {
-    font-weight: 700; 
-    color: #0056b3; 
-    width: 40%;
-}
-
-/* Botón Volver */
-.btn-volver {
-    margin-top: 20px; 
-    text-align: center;
-}
-
-.btn-volver a {
-    display: inline-block; 
-    background: #0056b3; 
-    color: #fff; 
-    padding: 9px 24px; 
-    text-decoration: none; 
-    font-weight: 700;
-    transition: background 0.3s;
-}
-
-.btn-volver a:hover {
-    background: #004099;
-}
-
-/* =============================================
-   ESPECÍFICO PARA DETALLE DE RESERVAS
-   ============================================= */
-
-.main-detalle {
-    padding: 24px 20px;
-    min-height: 80vh;
-}
-
-.container-detalle {
-    max-width: 1000px;
-    margin: 0 auto;
-}
-
-.caja-detalle {
-    background: #fff;
-    border: 1px solid #dee2e6;
-    padding: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-.table-responsive {
-    overflow-x: auto;
-}
-
-.tabla-detalle {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-}
-
-.tabla-detalle thead {
-    background: #0056b3;
-    color: #fff;
-}
-
-.tabla-detalle th, 
-.tabla-detalle td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
-    font-size: 0.9rem;
-}
-
-.tabla-detalle .badge-info {
-    display: block;
-    font-size: 0.8rem;
-    color: #6c757d;
-    margin-top: 4px;
-}
-
-.tabla-detalle .precio-resaltado {
-    font-weight: 700;
-    color: #28a745;
-}
-
-@media (max-width: 600px) {
-    .tabla-detalle th, .tabla-detalle td {
-        padding: 8px;
-        font-size: 0.8rem;
-    }
-}
-
-.btn-confirmar {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      padding: .6rem 1.4rem;
-      border-radius: 8px;
-      font-size: .92rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .18s, transform .12s;
-    }
-
-.btn-confirmar:hover { 
-  background: #1d4ed8; 
-  transform: translateY(-1px); 
-  }
-
-  .btn-secundario {
-    background: transparent;
-    color: var(--color-text, #333);
-    border: 1.5px solid var(--color-border, #d1d5db);
-    padding: .6rem 1.2rem;
-    border-radius: 8px;
-    font-size: .92rem;
-    cursor: pointer;
-    transition: border-color .18s;
-  }
-
-  .btn-secundario:hover { 
-    border-color: #2563eb; 
-    color: #2563eb; 
-  }

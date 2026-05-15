@@ -2,7 +2,6 @@
 session_start();
 require_once 'config.php';
 
-// Si ya está logueado, mandarlo al inicio
 if (isset($_SESSION['usuario_id'])) {
     header('Location: index.php');
     exit;
@@ -10,49 +9,41 @@ if (isset($_SESSION['usuario_id'])) {
 
 $error = '';
 
-// Si el usuario hace clic en el botón de entrar
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email    = trim($_POST['email']    ?? '');
+    $password = trim($_POST['password'] ?? '');
 
-    if ($email == '' || $password == '') {
-        $error = 'Rellena todos los campos';
+    if ($email === '' || $password === '') {
+        $error = 'Rellena todos los campos.';
     } else {
-        $db = getDB();
-        
-        // Buscar al usuario por email
-        $sql = "SELECT * FROM usuarios WHERE email = ? LIMIT 1";
-        $consulta = $db->prepare($sql);
-        $consulta->execute([$email]);
-        $usuario = $consulta->fetch();
+        $db  = getDB();
+        $sql = 'SELECT * FROM usuarios WHERE email = ? LIMIT 1';
+        $st  = $db->prepare($sql);
+        $st->execute([$email]);
+        $usuario = $st->fetch();
 
-        // Si el usuario existe, revisamos la contraseña
-        if ($usuario) {
-            
-            // Comprobar si la contraseña es correcta (ya sea hash o texto plano)
-            if (password_verify($password, $usuario['password']) || $password == $usuario['password']) {
-                
-                // Guardar datos en la sesión
-                $_SESSION['usuario_id'] = $usuario['id_user'];
-                $_SESSION['usuario_nombre'] = $usuario['nombre'];
-                $_SESSION['usuario_email'] = $usuario['email'];
-                $_SESSION['usuario_saldo'] = $usuario['saldo'];
-                
-                header('Location: index.php');
-                exit;
-                
+        if ($usuario && $password === $usuario['password']) {
+            $_SESSION['usuario_id']     = $usuario['id_user'];
+            $_SESSION['usuario_nombre'] = $usuario['nombre'];
+            $_SESSION['usuario_email']  = $usuario['email'];
+            $_SESSION['usuario_saldo']  = $usuario['saldo'];
+            $_SESSION['usuario_rol']    = $usuario['rol'];
+
+            // Redirigir según rol
+            if ($usuario['rol'] === 'admin') {
+                header('Location: admin.php');
+            } elseif ($usuario['rol'] === 'entrenador') {
+                header('Location: entrenador.php');
             } else {
-                $error = 'Email o contraseña incorrectos';
+                header('Location: index.php');
             }
-            
+            exit;
         } else {
-            $error = 'Email o contraseña incorrectos';
+            $error = 'Email o contraseña incorrectos.';
         }
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -60,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login – UniSport Booking</title>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="login-screen">
@@ -75,15 +66,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <form method="POST" action="login.php">
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" required>
-                    </div>       
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email"
+                               value="<?= $_POST['email'] ?? '' ?>" required>
+                    </div>
                     <div class="form-group">
-                        <label>Contraseña</label>
-                        <input type="password" name="password" required>
-                    </div>          
+                        <label for="password">Contraseña</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
                     <button type="submit" class="btn-entrar">Entrar</button>
                 </form>
+
+                <p class="login-registro">¿No tienes cuenta?
+                    <a href="registro.php">Regístrate aquí</a>
+                </p>
             </div>
         </div>
     </div>

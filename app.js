@@ -1,292 +1,326 @@
 // =============================================
-//  UNISPORT BOOKING - app.js  (SIN BOOTSTRAP)
+//  UNISPORT BOOKING - app.js
 // =============================================
 
-// ---- INICIO ----
-document.addEventListener('DOMContentLoaded', function() {
-  var hoy = new Date().toISOString().split('T')[0];
-  document.getElementById('inputFecha').min   = hoy;
-  document.getElementById('inputFecha').value = hoy;
-
-  cargarReservas();
-  cargarPistas();
-  cargarSelectPistas();
-  actualizarSaldo();
-  cargarComplementos();
-});
-
-var API = 'api.php';
-
-var iconos = {
-  tenis:      '🎾',
-  fútbol:     '⚽',
-  futbol:     '⚽',
-  pádel:      '🏓',
-  padel:      '🏓',
-  baloncesto: '🏀',
-  voleibol:   '🏐'
-};
-
-function icono(deporte) {
-  return iconos[(deporte || '').toLowerCase()] || '🏅';
+// ─── UTILIDADES ───────────────────────────────────────────────
+function toast(msg, tipo = 'success') {
+    const c = document.getElementById('toastContainer');
+    if (!c) return;
+    const t = document.createElement('div');
+    t.className = `toast ${tipo}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
 }
 
-// ---- MODAL ----
+function iconoDeporte(d) {
+    const m = { tenis:'🎾', fútbol:'⚽', futbol:'⚽', pádel:'🏓', padel:'🏓', baloncesto:'🏀', voleibol:'🏐' };
+    return m[(d || '').toLowerCase()] || '🏅';
+}
+
+function fechaLegible(f) {
+    if (!f) return '';
+    const [y, m, d] = f.split('-');
+    return `${d}/${m}/${y}`;
+}
+
+// ─── DATOS EN CACHÉ ───────────────────────────────────────────
+let cachePistas    = [];
+let cacheMonitores = [];
+let cacheMateriales = [];
+
+// ─── INIT ─────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const pagina = detectarPagina();
+
+    if (pagina === 'index') {
+        cargarPistas();
+        cargarReservasProximas();
+        initModal();
+    }
+
+    if (pagina === 'reservas') {
+        cargarHistorial();
+    }
+});
+
+function detectarPagina() {
+    const path = window.location.pathname;
+    if (path.includes('reservas')) return 'reservas';
+    return 'index';
+}
+
+// ─── PISTAS (INDEX) ───────────────────────────────────────────
+async function cargarPistas() {
+    const contenedor = document.getElementById('listaPistas');
+    try {
+        const r = await fetch('api.php?action=pistas');
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.msg);
+        cachePistas = d.pistas;
+
+        if (!d.pistas.length) {
+            contenedor.innerHTML = '<p class="muted">No hay pistas disponibles.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = d.pistas.map(p => `
+            <div class="pista-caja">
+                <div class="caja-header">${iconoDeporte(p.deporte)} ${p.nombre}</div>
+                <div class="caja-body">
+                    <p class="desc">${p.deporte}</p>
+                    <p class="precio">${parseFloat(p.precio).toFixed(2)} €/h</p>
+                    <button class="btn-reservar" onclick="abrirModalConPista(${p.id})">Reservar</button>
+                </div>
+            </div>
+        `).join('');
+    } catch (e) {
+        contenedor.innerHTML = `<p class="muted">Error al cargar pistas: ${e.message}</p>`;
+    }
+}
+
+// ─── PRÓXIMAS RESERVAS (INDEX) ────────────────────────────────
+async function cargarReservasProximas() {
+    const contenedor = document.getElementById('listaReservas');
+    try {
+        const r = await fetch('api.php?action=reservas');
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.msg);
+
+        if (!d.reservas.length) {
+            contenedor.innerHTML = '<p class="muted">No tienes reservas próximas.</p>';
+            return;
+        }
+
+        contenedor.innerHTML = d.reservas.map(rv => `
+            <div class="reserva-caja">
+                <span class="sport-icon">${iconoDeporte(rv.deporte)}</span>
+                <strong>${rv.pista}</strong>
+                <span class="fecha">${fechaLegible(rv.fecha)} · ${rv.hora_inicio.slice(0,5)}–${rv.hora_fin.slice(0,5)}</span>
+                ${rv.monitor_nombre ? `<span class="muted">Monitor: ${rv.monitor_nombre}</span>` : ''}
+                <span class="muted precio-resaltado">${parseFloat(rv.precio_final).toFixed(2)} €</span>
+                <button class="btn-cancelar" onclick="cancelarReserva(${rv.id})">Cancelar</button>
+            </div>
+        `).join('');
+    } catch (e) {
+        contenedor.innerHTML = `<p class="muted">Error: ${e.message}</p>`;
+    }
+}
+
+// ─── HISTORIAL (reservas.php) ─────────────────────────────────
+async function cargarHistorial() {
+    const tbody = document.getElementById('cuerpoTablaReservas');
+    if (!tbody) return;
+
+    try {
+        const r = await fetch('api.php?action=historial');
+        const d = await r.json();
+        if (!d.ok) throw new Error(d.msg);
+
+        if (!d.reservas.length) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#6c757d;">No tienes reservas registradas.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = d.reservas.map(rv => {
+            const estadoClass = rv.estado_pago === 'pagado' ? 'badge-estado-ok'
+                              : rv.estado_pago === 'cancelada' ? 'badge-estado-mal'
+                              : 'badge-estado-pend';
+
+            const cancelBtn = rv.estado_pago !== 'cancelada'
+                ? `<button class="btn-cancelar" onclick="cancelarReservaHistorial(${rv.id}, this)">Cancelar</button>`
+                : '—';
+
+            return `
+                <tr>
+                    <td>${rv.id}</td>
+                    <td>${rv.pista}<span class="badge-info">${rv.deporte}</span></td>
+                    <td>${fechaLegible(rv.fecha)}</td>
+                    <td>${rv.hora_inicio.slice(0,5)} – ${rv.hora_fin.slice(0,5)}</td>
+                    <td>${rv.monitor_nombre || '—'}</td>
+                    <td>${rv.materiales || '—'}</td>
+                    <td class="precio-resaltado">${parseFloat(rv.precio_final).toFixed(2)} €</td>
+                    <td><span class="${estadoClass}">${rv.estado_pago}</span></td>
+                    <td>${cancelBtn}</td>
+                </tr>
+            `;
+        }).join('');
+    } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="9" style="color:red;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+// ─── CANCELAR RESERVA (desde index) ──────────────────────────
+async function cancelarReserva(id) {
+    if (!confirm('¿Seguro que quieres cancelar esta reserva? Se te devolverá el importe completo.')) return;
+
+    const fd = new FormData();
+    fd.append('action', 'cancelar');
+    fd.append('reserva_id', id);
+
+    const r = await fetch('api.php', { method: 'POST', body: fd });
+    const d = await r.json();
+
+    toast(d.msg, d.ok ? 'success' : 'error');
+
+    if (d.ok) {
+        actualizarSaldoUI(d.saldo);
+        cargarReservasProximas();
+    }
+}
+
+// ─── CANCELAR RESERVA (desde reservas.php) ───────────────────
+async function cancelarReservaHistorial(id, btn) {
+    if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe completo.')) return;
+
+    const fd = new FormData();
+    fd.append('action', 'cancelar');
+    fd.append('reserva_id', id);
+
+    const r = await fetch('api.php', { method: 'POST', body: fd });
+    const d = await r.json();
+
+    toast(d.msg, d.ok ? 'success' : 'error');
+
+    if (d.ok) {
+        cargarHistorial();
+    }
+}
+
+// ─── MODAL ────────────────────────────────────────────────────
+async function initModal() {
+    // Cargar datos para selectores
+    const [rPistas, rMonitores, rMateriales] = await Promise.all([
+        fetch('api.php?action=pistas').then(r => r.json()),
+        fetch('api.php?action=monitores').then(r => r.json()),
+        fetch('api.php?action=materiales').then(r => r.json()),
+    ]);
+
+    cachePistas     = rPistas.pistas     || [];
+    cacheMonitores  = rMonitores.monitores || [];
+    cacheMateriales = rMateriales.materiales || [];
+
+    const selPista = document.getElementById('selectPista');
+    selPista.innerHTML = cachePistas.map(p =>
+        `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} (${p.deporte}) – ${parseFloat(p.precio).toFixed(2)} €/h</option>`
+    ).join('');
+
+    const selMonitor = document.getElementById('selectMonitor');
+    selMonitor.innerHTML = '<option value="0" data-precio="0">Sin monitor</option>' +
+        cacheMonitores.map(m =>
+            `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} (${m.especialidad}) – ${parseFloat(m.precio).toFixed(2)} €/sesión</option>`
+        ).join('');
+
+    const selMaterial = document.getElementById('selectMaterial');
+    selMaterial.innerHTML = '<option value="0" data-precio="0">Sin material</option>' +
+        cacheMateriales.map(m =>
+            `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} – ${parseFloat(m.precio).toFixed(2)} €/ud</option>`
+        ).join('');
+
+    // Fecha mínima: hoy
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('inputFecha').min = hoy;
+    document.getElementById('inputFecha').value = hoy;
+
+    actualizarResumen();
+}
+
 function abrirModal() {
-  document.getElementById('modalReserva').classList.add('activo');
-  document.getElementById('modalMsg').className = 'alerta';
-  document.getElementById('modalMsg').textContent = '';
+    document.getElementById('modalReserva').classList.add('activo');
+    document.getElementById('modalMsg').classList.remove('visible', 'error', 'success');
+}
+
+function abrirModalConPista(idPista) {
+    abrirModal();
+    const sel = document.getElementById('selectPista');
+    if (sel) sel.value = idPista;
+    actualizarResumen();
 }
 
 function cerrarModal() {
-  document.getElementById('modalReserva').classList.remove('activo');
+    document.getElementById('modalReserva').classList.remove('activo');
 }
 
-// Cerrar modal al hacer clic fuera
-document.addEventListener('click', function(e) {
-  if (e.target.id === 'modalReserva') cerrarModal();
-});
-
-// ---- SALDO ----
-function actualizarSaldo() {
-  fetch(API + '?action=saldo')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.ok) {
-        document.getElementById('saldoDisplay').textContent = data.saldo;
-      }
-    });
-}
-
-setInterval(actualizarSaldo, 30000);
-
-// ---- RESERVAS ----
-function cargarReservas() {
-  var contenedor = document.getElementById('listaReservas');
-  fetch(API + '?action=reservas')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || data.reservas.length === 0) {
-        contenedor.innerHTML = '<p class="muted">No tienes próximas reservas.</p>';
-        return;
-      }
-      var html = '';
-      for (var i = 0; i < data.reservas.length; i++) {
-        var r = data.reservas[i];
-        html += '<div class="reserva-caja">' +
-          '<span class="sport-icon">' + icono(r.deporte) + '</span>' +
-          '<strong>' + r.pista + '</strong>' +
-          '<span class="fecha">' + formatarFecha(r.fecha) + ' | ' + r.hora_inicio.slice(0,5) + ' – ' + r.hora_fin.slice(0,5) + ' h</span>' +
-          '<br><button class="btn-cancelar" onclick="cancelarReserva(' + r.id + ')">Cancelar</button>' +
-          '</div>';
-      }
-      contenedor.innerHTML = html;
-    });
-}
-
-function formatarFecha(f) {
-  var partes = f.split('-');
-  var meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-  return parseInt(partes[2]) + ' ' + meses[parseInt(partes[1]) - 1];
-}
-
-// ---- CANCELAR ----
-function cancelarReserva(id) {
-  if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe')) return;
-
-  var datos = new FormData();
-  datos.append('action', 'cancelar');
-  datos.append('reserva_id', id);
-
-  fetch(API, { method: 'POST', body: datos })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      mostrarToast(data.msg, data.ok ? 'success' : 'error');
-      if (data.ok) {
-        document.getElementById('saldoDisplay').textContent = data.saldo;
-        cargarReservas();
-      }
-    });
-}
-
-// ---- PISTAS ----
-function cargarPistas() {
-  var contenedor = document.getElementById('listaPistas');
-  fetch(API + '?action=pistas')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (!data.ok || data.pistas.length === 0) {
-        contenedor.innerHTML = '<p class="muted">No hay pistas disponibles</p>';
-        return;
-      }
-      var html = '';
-      for (var i = 0; i < data.pistas.length; i++) {
-        var p = data.pistas[i];
-        html += '<div class="pista-caja">' +
-          '<div class="caja-header">' + icono(p.deporte) + ' ' + p.nombre + '</div>' +
-          '<div class="caja-body">' +
-          '<p class="desc">' + (p.descripcion || '') + '</p>' +
-          '<p class="precio">' + parseFloat(p.precio).toFixed(2) + ' € / hora</p>' +
-          '<button class="btn-reservar" onclick="abrirModalConPista(' + p.id + ', \'' + p.nombre.replace(/'/g,"\\'") + '\')">Reservar</button>' +
-          '</div></div>';
-      }
-      contenedor.innerHTML = html;
-    });
-}
-
-function cargarSelectPistas() {
-  fetch(API + '?action=pistas')
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var sel = document.getElementById('selectPista');
-      sel.innerHTML = '';
-      for (var i = 0; i < (data.pistas || []).length; i++) {
-        var p = data.pistas[i];
-        var opt = document.createElement('option');
-        opt.value = p.id;
-        opt.textContent = p.nombre + ' – ' + parseFloat(p.precio).toFixed(2) + ' €/h';
-        sel.appendChild(opt);
-      }
-      actualizarResumen();
-    });
-}
-
-function cargarComplementos() {
-    fetch(API + '?action=monitores')
-        .then(r => r.json())
-        .then(data => {
-            let sel = document.getElementById('selectMonitor');
-            sel.innerHTML = '<option value="0" data-precio="0">Sin monitor</option>';
-            data.monitores.forEach(m => {
-                sel.innerHTML += `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} (+${m.precio}€)</option>`;
-            });
-            actualizarResumen();
-        });
-
-    // Cargar Materiales desde la API
-    fetch(API + '?action=materiales')
-        .then(r => r.json())
-        .then(data => {
-            let sel = document.getElementById('selectMaterial');
-            sel.innerHTML = '<option value="0" data-precio="0">No necesito material</option>';
-            data.materiales.forEach(mat => {
-                sel.innerHTML += `<option value="${mat.id}" data-precio="${mat.precio}">${mat.nombre} (+${mat.precio}€/u)</option>`;
-            });
-            actualizarResumen();
-        });
-}
-
-function abrirModalConPista(id, nombre) {
-  abrirModal();
-  var sel = document.getElementById('selectPista');
-  for (var i = 0; i < sel.options.length; i++) {
-    if (sel.options[i].value == id) {
-      sel.selectedIndex = i;
-      break;
-    }
-  }
-}
-
-// ---- RESUMEN DE PAGO ----
 function actualizarResumen() {
-  var selPista = document.getElementById('selectPista');
-  var precioHora = 0;
-  if (selPista && selPista.selectedIndex >= 0) {
-    var textoOpt = selPista.options[selPista.selectedIndex].textContent;
-    var match = textoOpt.match(/([\d.]+)\s*€\/h/);
-    if (match) precioHora = parseFloat(match[1]);
-  }
+    const selPista    = document.getElementById('selectPista');
+    const inputIni    = document.getElementById('inputHoraInicio');
+    const inputFin    = document.getElementById('inputHoraFin');
+    const selMonitor  = document.getElementById('selectMonitor');
+    const selMaterial = document.getElementById('selectMaterial');
+    const cantidad    = parseInt(document.getElementById('cantidadMaterial')?.value || '1', 10);
 
-  var horaInicio = document.getElementById('inputHoraInicio').value;
-  var horaFin = document.getElementById('inputHoraFin').value;
-  var horas = 0;
-  if (horaInicio && horaFin && horaFin > horaInicio) {
-    var ini = horaInicio.split(':').map(Number);
-    var fin = horaFin.split(':').map(Number);
-    horas = ((fin[0] * 60 + fin[1]) - (ini[0] * 60 + ini[1])) / 60;
-  }
-  var costePista = precioHora * horas;
+    if (!selPista || !inputIni || !inputFin) return;
 
-  // Precio monitor
-  var selMon = document.getElementById('selectMonitor');
-  var precioMonitor = 0;
-  if (selMon && selMon.selectedIndex >= 0) {
-    precioMonitor = parseFloat(selMon.options[selMon.selectedIndex].getAttribute('data-precio')) || 0;
-  }
+    const precioPista   = parseFloat(selPista.selectedOptions[0]?.dataset.precio    || 0);
+    const precioMonitor = parseFloat(selMonitor?.selectedOptions[0]?.dataset.precio || 0);
+    const precioMat     = parseFloat(selMaterial?.selectedOptions[0]?.dataset.precio|| 0);
 
-  // Precio material × cantidad
-  var selMat = document.getElementById('selectMaterial');
-  var precioMaterial = 0;
-  if (selMat && selMat.selectedIndex >= 0) {
-    precioMaterial = parseFloat(selMat.options[selMat.selectedIndex].getAttribute('data-precio')) || 0;
-  }
-  var cantidad = parseInt(document.getElementById('cantidadMaterial').value) || 1;
-  var costeMaterial = precioMaterial * cantidad;
+    const ini = inputIni.value;
+    const fin = inputFin.value;
+    let horas = 0;
+    if (ini && fin && fin > ini) {
+        horas = (new Date('1970-01-01T' + fin) - new Date('1970-01-01T' + ini)) / 3600000;
+    }
 
-  var total = costePista + precioMonitor + costeMaterial;
+    const costePista    = precioPista * horas;
+    const costeMonitor  = precioMonitor;
+    const costeMaterial = precioMat * cantidad;
+    const total         = costePista + costeMonitor + costeMaterial;
 
-  document.getElementById('resumenPista').textContent    = costePista.toFixed(2) + ' €';
-  document.getElementById('resumenMonitor').textContent  = precioMonitor.toFixed(2) + ' €';
-  document.getElementById('resumenMaterial').textContent = costeMaterial.toFixed(2) + ' €';
-  document.getElementById('resumenTotal').textContent    = total.toFixed(2) + ' €';
+    document.getElementById('resumenPista').textContent    = costePista.toFixed(2)    + ' €';
+    document.getElementById('resumenMonitor').textContent  = costeMonitor.toFixed(2)  + ' €';
+    document.getElementById('resumenMaterial').textContent = costeMaterial.toFixed(2) + ' €';
+    document.getElementById('resumenTotal').textContent    = total.toFixed(2)         + ' €';
 }
 
-// ---- CONFIRMAR RESERVA ----
-function confirmarReserva() {
-  var pista_id    = document.getElementById('selectPista').value;
-  var fecha       = document.getElementById('inputFecha').value;
-  var hora_inicio = document.getElementById('inputHoraIni').value;
-  var hora_fin    = document.getElementById('inputHoraFin').value;
-  var monitor_id  = document.getElementById('selectMonitor').value;
-  var material_id = document.getElementById('selectMaterial').value;
-  var cantidad    = document.getElementById('cantidadMaterial').value;
+async function confirmarReserva() {
+    const msgEl    = document.getElementById('modalMsg');
+    const pistaId  = document.getElementById('selectPista').value;
+    const fecha    = document.getElementById('inputFecha').value;
+    const horaIni  = document.getElementById('inputHoraInicio').value;
+    const horaFin  = document.getElementById('inputHoraFin').value;
+    const monId    = document.getElementById('selectMonitor').value;
+    const matId    = document.getElementById('selectMaterial').value;
+    const cantidad = document.getElementById('cantidadMaterial').value;
 
-  if (!pista_id || !fecha || !hora_inicio || !hora_fin) {
-    mostrarMsgModal('Completa todos los campos.', 'error');
-    return;
-  }
-  if (hora_fin <= hora_inicio) {
-    mostrarMsgModal('La hora de fin debe ser posterior a la de inicio.', 'error');
-    return;
-  }
+    if (!fecha || !horaIni || !horaFin) {
+        msgEl.className = 'alerta error visible';
+        msgEl.textContent = 'Rellena fecha y horario.';
+        return;
+    }
 
-  var datos = new FormData();
-  datos.append('action', 'reservar');
-  datos.append('pista_id', pista_id);
-  datos.append('fecha', fecha);
-  datos.append('hora_inicio', hora_inicio);
-  datos.append('hora_fin', hora_fin);
-  datos.append('monitor_id', monitor_id  || 0);
-  datos.append('material_id', material_id || 0);
-  datos.append('cantidad', cantidad    || 1);
+    if (horaFin <= horaIni) {
+        msgEl.className = 'alerta error visible';
+        msgEl.textContent = 'La hora de fin debe ser posterior a la de inicio.';
+        return;
+    }
 
-  fetch(API, { method: 'POST', body: datos })
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      if (data.ok) {
+    const fd = new FormData();
+    fd.append('action',      'reservar');
+    fd.append('pista_id',    pistaId);
+    fd.append('fecha',       fecha);
+    fd.append('hora_inicio', horaIni);
+    fd.append('hora_fin',    horaFin);
+    fd.append('monitor_id',  monId);
+    fd.append('material_id', matId);
+    fd.append('cantidad',    cantidad);
+
+    const r = await fetch('api.php', { method: 'POST', body: fd });
+    const d = await r.json();
+
+    if (d.ok) {
         cerrarModal();
-        document.getElementById('saldoDisplay').textContent = data.saldo;
-        cargarReservas();
-        cargarPistas();
-        mostrarToast(data.msg, 'success');
-      } else {
-        mostrarMsgModal(data.msg, 'error');
-      }
-    });
+        toast(d.msg, 'success');
+        actualizarSaldoUI(d.saldo);
+        cargarReservasProximas();
+    } else {
+        msgEl.className = 'alerta error visible';
+        msgEl.textContent = d.msg;
+    }
 }
 
-// ---- HELPERS ----
-function mostrarMsgModal(texto, tipo) {
-  var box = document.getElementById('modalMsg');
-  box.textContent = texto;
-  box.className = 'alerta ' + tipo + ' visible';
-}
-
-function mostrarToast(texto, tipo) {
-  var cont = document.getElementById('toastContainer');
-  var div = document.createElement('div');
-  div.className = 'toast ' + tipo;
-  div.textContent = texto;
-  cont.appendChild(div);
-  setTimeout(function() { div.remove(); }, 4000);
+// ─── ACTUALIZAR SALDO EN NAVBAR ───────────────────────────────
+function actualizarSaldoUI(saldo) {
+    const el = document.getElementById('saldoDisplay');
+    if (el) el.textContent = saldo;
 }
