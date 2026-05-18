@@ -56,7 +56,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-screen">
         <div class="login-caja">
-            <div class="login-header">🏆 UniSport Booking</div>
+            <div class="login-header" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px;">
+                <img src="logo.png" alt="UniSport Logo" style="height: 60px; width: auto;">
+                <span>UniSport Booking</span>
+            </div>
+            
             <div class="login-body">
                 <h5>Iniciar Sesión</h5>
 
@@ -65,12 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
 
                 <form method="POST" action="login.php">
-                    <div class="form-group">
+                    <div class="form-grupo">
                         <label for="email">Email</label>
                         <input type="email" id="email" name="email"
                                value="<?= $_POST['email'] ?? '' ?>" required>
                     </div>
-                    <div class="form-group">
+                    <div class="form-grupo">
                         <label for="password">Contraseña</label>
                         <input type="password" id="password" name="password" required>
                     </div>

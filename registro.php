@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $sql_insert = $db->prepare("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)");
             $sql_insert->execute([$nombre, $email, $password, $rol]);
 
-            $success = '¡Registro ok! <a href="login.php">Inicia sesión aquí</a>.';
+            $success = 'Registrado correctamente <a href="login.php">Inicia sesión aquí</a>';
         }
     }
 }
@@ -59,7 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
     <div class="login-screen">
         <div class="login-caja">
-            <div class="login-header">🏆 UniSport Booking</div>
+            <div class="login-header" style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 15px;">
+                <img src="logo.png" alt="UniSport Logo" style="height: 60px; width: auto;">
+                <span>UniSport Booking</span>
+            </div>
             <div class="login-body">
                 <h5>Crear cuenta</h5>
 
@@ -71,19 +74,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="alerta success-login"><?= $success ?></div>
                 <?php else: ?>
                     <form method="POST">
-                        <div class="form-group">
+                        <div class="form-grupo">
                             <label>Nombre completo</label>
                             <input type="text" name="nombre" value="<?= $_POST['nombre'] ?? '' ?>" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-grupo">
                             <label>Email (@unisport.es para Alumno)</label>
                             <input type="email" name="email" value="<?= $_POST['email'] ?? '' ?>" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-grupo">
                             <label>Contraseña (mín. 8)</label>
                             <input type="password" name="password" required>
                         </div>
-                        <div class="form-group">
+                        <div class="form-grupo">
                             <label>Confirmar contraseña</label>
                             <input type="password" name="confirm" required>
                         </div>

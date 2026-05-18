@@ -15,7 +15,10 @@ requireLogin();
 <body>
 
 <nav class="nav-barra">
-  <a class="nav-barra-brand" href="index.php">🏆 UniSport Booking</a>
+<a class="nav-barra-brand" href="index.php">
+  <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+  UniSport Booking
+</a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
     <a href="reservas.php">Mis Reservas</a>

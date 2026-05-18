@@ -74,11 +74,6 @@ CREATE TABLE reserva_material (
 
 -- =============================================
 --  DATOS DE PRUEBA
---  Contraseñas hasheadas con password_hash($pass, PASSWORD_DEFAULT)
---  alumno:       password123
---  externo:      externa456
---  entrenador:   entrenador789
---  admin:        admin2026
 -- =============================================
 
 INSERT INTO usuarios (nombre, email, password, rol, saldo) VALUES

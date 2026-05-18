@@ -1,36 +1,28 @@
 <?php
 session_start();
 require_once 'config.php';
-requireRol('admin');
+
+// CONTROL DE ACCESO CORREGIDO: Usamos la variable exacta del login
+if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] !== 'admin') {
+    header('Location: index.php');
+    exit;
+}
 
 $db = getDB();
 
-// 1. Estadísticas básicas (una por una para que sea fácil de leer)
-$num_usuarios = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
-$num_reservas = $db->query("SELECT COUNT(*) FROM reservas WHERE estado_pago = 'pagado'")->fetchColumn();
-$ingresos     = $db->query("SELECT SUM(precio_final) FROM reservas WHERE estado_pago = 'pagado'")->fetchColumn();
+// 1. Contar cosas una por una
+$num_usuarios  = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
+$num_reservas  = $db->query("SELECT COUNT(*) FROM reservas WHERE estado_pago = 'pagado'")->fetchColumn();
 $pistas_libres = $db->query("SELECT COUNT(*) FROM pistas WHERE estado = 'disponible'")->fetchColumn();
 
-// 2. Obtener datos de las tablas
-$reservas = $db->query("
-    SELECT r.*, u.nombre as usuario, u.rol as rol_usuario, p.nombre_pista, p.tipo_deporte, m.nombre as monitor
-    FROM reservas r
-    JOIN usuarios u ON u.id_user = r.id_user
-    JOIN pistas p ON p.id_pista = r.id_pista
-    LEFT JOIN monitores m ON m.id_monitor = r.id_monitor
-    ORDER BY r.fecha DESC, r.hora_inicio DESC
-    LIMIT 50
-")->fetchAll();
+// 2. Cargar las tablas completas sin JOINs raros
+$pistas   = $db->query("SELECT * FROM pistas")->fetchAll();
+$usuarios = $db->query("SELECT * FROM usuarios")->fetchAll();
+$reservas = $db->query("SELECT * FROM reservas LIMIT 50")->fetchAll();
 
-$pistas   = $db->query("SELECT * FROM pistas ORDER BY tipo_deporte")->fetchAll();
-$usuarios = $db->query("SELECT * FROM usuarios ORDER BY fecha_registro DESC")->fetchAll();
-
-// Mensaje de sesión
-$msg = "";
-if(isset($_SESSION['admin_msg'])) {
-    $msg = $_SESSION['admin_msg'];
-    unset($_SESSION['admin_msg']);
-}
+// Mensajes de alerta rápidos
+$msg = $_SESSION['admin_msg'] ?? '';
+unset($_SESSION['admin_msg']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -42,7 +34,10 @@ if(isset($_SESSION['admin_msg'])) {
 <body>
 
 <nav class="nav-barra">
-  <a class="nav-barra-brand" href="admin.php">🏆 UniSport Booking – Admin</a>
+  <a class="nav-barra-brand" href="index.php">
+  <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+  UniSport Booking - Admin
+</a>
   <div class="nav-links">
     <a href="#pistas">Pistas</a>
     <a href="#reservas">Reservas</a>
@@ -59,21 +54,17 @@ if(isset($_SESSION['admin_msg'])) {
   <?php endif; ?>
 
   <div class="grid" style="margin-bottom:32px;">
-    <div class="kpi-caja">
-      <div class="kpi-valor"><?= $num_usuarios ?></div>
-      <div class="kpi-label">Usuarios registrados</div>
+    <div class="indicador-caja">
+      <div class="indicador-valor"><?= $num_usuarios ?></div>
+      <div class="indicador-label">Usuarios registrados</div>
     </div>
-    <div class="kpi-caja">
-      <div class="kpi-valor"><?= $num_reservas ?></div>
-      <div class="kpi-label">Reservas pagadas</div>
+    <div class="indicador-caja">
+      <div class="indicador-valor"><?= $num_reservas ?></div>
+      <div class="indicador-label">Reservas pagadas</div>
     </div>
-    <div class="kpi-caja kpi-green">
-      <div class="kpi-valor"><?= number_format($ingresos, 2) ?> €</div>
-      <div class="kpi-label">Ingresos totales</div>
-    </div>
-    <div class="kpi-caja">
-      <div class="kpi-valor"><?= $pistas_libres ?></div>
-      <div class="kpi-label">Pistas disponibles</div>
+    <div class="indicador-caja">
+      <div class="indicador-valor"><?= $pistas_libres ?></div>
+      <div class="indicador-label">Pistas disponibles</div>
     </div>
   </div>
 
@@ -116,15 +107,15 @@ if(isset($_SESSION['admin_msg'])) {
   <div class="caja caja-detalle" style="margin-bottom:32px;">
     <table class="tabla-detalle">
         <thead>
-          <tr><th>Usuario</th><th>Pista</th><th>Fecha</th><th>Total</th><th>Acción</th></tr>
+          <tr><th>ID Usuario</th><th>ID Pista</th><th>Fecha / Hora</th><th>Total</th><th>Acción</th></tr>
         </thead>
         <tbody>
           <?php foreach ($reservas as $r): ?>
           <tr>
-            <td><?= $r['usuario'] ?> <small>(<?= $r['rol_usuario'] ?>)</small></td>
-            <td><?= $r['nombre_pista'] ?></td>
-            <td><?= $r['fecha'] ?> (<?= substr($r['hora_inicio'],0,5) ?>)</td>
-            <td><?= number_format($r['precio_final'], 2) ?> €</td>
+            <td>ID User: <?= $r['id_user'] ?></td>
+            <td>ID Pista: <?= $r['id_pista'] ?></td>
+            <td><?= $r['fecha'] ?> (<?= $r['hora_inicio'] ?>)</td>
+            <td><?= $r['precio_final'] ?> €</td>
             <td>
               <?php if ($r['estado_pago'] != 'cancelada'): ?>
               <form method="POST" action="api_admin.php">
@@ -152,7 +143,7 @@ if(isset($_SESSION['admin_msg'])) {
             <td><?= $u['nombre'] ?></td>
             <td><?= $u['email'] ?></td>
             <td><?= $u['rol'] ?></td>
-            <td><?= number_format($u['saldo'], 2) ?> €</td>
+            <td><?= $u['saldo'] ?> €</td>
             <td>
               <?php if ($u['rol'] != 'admin'): ?>
               <form method="POST" action="api_admin.php">

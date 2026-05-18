@@ -35,11 +35,11 @@ if ($action === 'pistas') {
     exit;
 }
 
-// ─── MONITORES DISPONIBLES ────────────────────────────────────
+// ─── MONITORES (todos, con disponibilidad) ────────────────────
 if ($action === 'monitores') {
     $st = $pdo->query("
-        SELECT id_monitor AS id, nombre, especialidad, precio_sesion AS precio
-        FROM monitores WHERE disponibilidad = 1
+        SELECT id_monitor AS id, nombre, especialidad, precio_sesion AS precio, disponibilidad
+        FROM monitores
     ");
     echo json_encode(['ok' => true, 'monitores' => $st->fetchAll()]);
     exit;
@@ -114,13 +114,11 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Validar que hora_fin > hora_inicio
     if ($hora_fin <= $hora_ini) {
         echo json_encode(['ok' => false, 'msg' => 'La hora de fin debe ser posterior a la de inicio.']);
         exit;
     }
 
-    // Validar franja horaria 08:00 – 00:00
     if ($hora_ini < '08:00') {
         echo json_encode(['ok' => false, 'msg' => 'Las reservas empiezan a las 08:00.']);
         exit;
@@ -135,12 +133,11 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Calcular coste de pista
-    $minutos     = (strtotime($hora_fin) - strtotime($hora_ini)) / 60;
-    $horas       = $minutos / 60;
+    // Calcular coste pista
+    $horas       = (strtotime($hora_fin) - strtotime($hora_ini)) / 3600;
     $coste_pista = round((float)$pista['precio_hora'] * $horas, 2);
 
-    // Coste monitor (opcional)
+    // Coste monitor — solo si disponibilidad = 1
     $coste_monitor = 0.0;
     $monitor_id_ok = null;
     if ($id_monitor > 0) {
@@ -150,10 +147,13 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($mon !== false) {
             $coste_monitor = (float) $mon;
             $monitor_id_ok = $id_monitor;
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'El monitor seleccionado no está disponible.']);
+            exit;
         }
     }
 
-    // Coste material (opcional)
+    // Coste material
     $coste_material = 0.0;
     $material_id_ok = null;
     if ($id_material > 0) {
@@ -181,7 +181,7 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Verificar solapamiento de horario en la pista
+    // Verificar solapamiento
     $st = $pdo->prepare("
         SELECT id_reserva FROM reservas
         WHERE id_pista   = ?
@@ -206,7 +206,6 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         $st->execute([$id_user, $id_pista, $monitor_id_ok, $fecha, $hora_ini, $hora_fin, $coste_total]);
         $id_reserva_nueva = (int) $pdo->lastInsertId();
 
-        // Guardar material si se eligió
         if ($material_id_ok) {
             $st = $pdo->prepare("
                 INSERT INTO reserva_material (id_reserva, id_material, cantidad) VALUES (?, ?, ?)
@@ -215,7 +214,6 @@ if ($action === 'reservar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $st->execute([$id_reserva_nueva, $material_id_ok, $cantidad]);
         }
 
-        // Descontar saldo
         $nuevo_saldo = $saldo_actual - $coste_total;
         $st = $pdo->prepare('UPDATE usuarios SET saldo = ? WHERE id_user = ?');
         $st->execute([$nuevo_saldo, $id_user]);
@@ -244,7 +242,6 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    // Verificar que la reserva pertenece al usuario y obtener precio_final (NO precio_hora)
     $st = $pdo->prepare("
         SELECT id_reserva, precio_final, estado_pago
         FROM reservas
@@ -260,11 +257,9 @@ if ($action === 'cancelar' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $pdo->beginTransaction();
     try {
-        // Cancelar reserva
         $st = $pdo->prepare("UPDATE reservas SET estado_pago = 'cancelada' WHERE id_reserva = ?");
         $st->execute([$id_reserva]);
 
-        // Devolver el importe COMPLETO (precio_final, no precio_hora)
         $st = $pdo->prepare('UPDATE usuarios SET saldo = saldo + ? WHERE id_user = ?');
         $st->execute([$reserva['precio_final'], $id_user]);
 

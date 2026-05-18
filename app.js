@@ -2,7 +2,6 @@
 //  UNISPORT BOOKING - app.js
 // =============================================
 
-// ─── UTILIDADES ───────────────────────────────────────────────
 function toast(msg, tipo = 'success') {
     const c = document.getElementById('toastContainer');
     if (!c) return;
@@ -24,21 +23,17 @@ function fechaLegible(f) {
     return `${d}/${m}/${y}`;
 }
 
-// ─── DATOS EN CACHÉ ───────────────────────────────────────────
-let cachePistas    = [];
-let cacheMonitores = [];
+let cachePistas     = [];
+let cacheMonitores  = [];
 let cacheMateriales = [];
 
-// ─── INIT ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const pagina = detectarPagina();
-
     if (pagina === 'index') {
         cargarPistas();
         cargarReservasProximas();
         initModal();
     }
-
     if (pagina === 'reservas') {
         cargarHistorial();
     }
@@ -50,7 +45,7 @@ function detectarPagina() {
     return 'index';
 }
 
-// ─── PISTAS (INDEX) ───────────────────────────────────────────
+// ─── PISTAS ───────────────────────────────────────────────────
 async function cargarPistas() {
     const contenedor = document.getElementById('listaPistas');
     try {
@@ -79,7 +74,7 @@ async function cargarPistas() {
     }
 }
 
-// ─── PRÓXIMAS RESERVAS (INDEX) ────────────────────────────────
+// ─── PRÓXIMAS RESERVAS ────────────────────────────────────────
 async function cargarReservasProximas() {
     const contenedor = document.getElementById('listaReservas');
     try {
@@ -107,7 +102,7 @@ async function cargarReservasProximas() {
     }
 }
 
-// ─── HISTORIAL (reservas.php) ─────────────────────────────────
+// ─── HISTORIAL ────────────────────────────────────────────────
 async function cargarHistorial() {
     const tbody = document.getElementById('cuerpoTablaReservas');
     if (!tbody) return;
@@ -123,12 +118,12 @@ async function cargarHistorial() {
         }
 
         tbody.innerHTML = d.reservas.map(rv => {
-            const estadoClass = rv.estado_pago === 'pagado' ? 'badge-estado-ok'
+            const estadoClass = rv.estado_pago === 'pagado'    ? 'badge-estado-ok'
                               : rv.estado_pago === 'cancelada' ? 'badge-estado-mal'
                               : 'badge-estado-pend';
 
             const cancelBtn = rv.estado_pago !== 'cancelada'
-                ? `<button class="btn-cancelar" onclick="cancelarReservaHistorial(${rv.id}, this)">Cancelar</button>`
+                ? `<button class="btn-cancelar" onclick="cancelarReservaHistorial(${rv.id})">Cancelar</button>`
                 : '—';
 
             return `
@@ -150,54 +145,43 @@ async function cargarHistorial() {
     }
 }
 
-// ─── CANCELAR RESERVA (desde index) ──────────────────────────
+// ─── CANCELAR (index) ─────────────────────────────────────────
 async function cancelarReserva(id) {
     if (!confirm('¿Seguro que quieres cancelar esta reserva? Se te devolverá el importe completo.')) return;
-
     const fd = new FormData();
     fd.append('action', 'cancelar');
     fd.append('reserva_id', id);
-
     const r = await fetch('api.php', { method: 'POST', body: fd });
     const d = await r.json();
-
     toast(d.msg, d.ok ? 'success' : 'error');
-
     if (d.ok) {
         actualizarSaldoUI(d.saldo);
         cargarReservasProximas();
     }
 }
 
-// ─── CANCELAR RESERVA (desde reservas.php) ───────────────────
-async function cancelarReservaHistorial(id, btn) {
+// ─── CANCELAR (historial) ─────────────────────────────────────
+async function cancelarReservaHistorial(id) {
     if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe completo.')) return;
-
     const fd = new FormData();
     fd.append('action', 'cancelar');
     fd.append('reserva_id', id);
-
     const r = await fetch('api.php', { method: 'POST', body: fd });
     const d = await r.json();
-
     toast(d.msg, d.ok ? 'success' : 'error');
-
-    if (d.ok) {
-        cargarHistorial();
-    }
+    if (d.ok) cargarHistorial();
 }
 
 // ─── MODAL ────────────────────────────────────────────────────
 async function initModal() {
-    // Cargar datos para selectores
     const [rPistas, rMonitores, rMateriales] = await Promise.all([
         fetch('api.php?action=pistas').then(r => r.json()),
         fetch('api.php?action=monitores').then(r => r.json()),
         fetch('api.php?action=materiales').then(r => r.json()),
     ]);
 
-    cachePistas     = rPistas.pistas     || [];
-    cacheMonitores  = rMonitores.monitores || [];
+    cachePistas     = rPistas.pistas       || [];
+    cacheMonitores  = rMonitores.monitores  || [];
     cacheMateriales = rMateriales.materiales || [];
 
     const selPista = document.getElementById('selectPista');
@@ -205,11 +189,15 @@ async function initModal() {
         `<option value="${p.id}" data-precio="${p.precio}">${p.nombre} (${p.deporte}) – ${parseFloat(p.precio).toFixed(2)} €/h</option>`
     ).join('');
 
+    // Monitores: deshabilitar los no disponibles
     const selMonitor = document.getElementById('selectMonitor');
     selMonitor.innerHTML = '<option value="0" data-precio="0">Sin monitor</option>' +
-        cacheMonitores.map(m =>
-            `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} (${m.especialidad}) – ${parseFloat(m.precio).toFixed(2)} €/sesión</option>`
-        ).join('');
+        cacheMonitores.map(m => {
+            if (parseInt(m.disponibilidad) === 0) {
+                return `<option value="${m.id}" disabled style="color:#bbb;">${m.nombre} (${m.especialidad}) – No disponible</option>`;
+            }
+            return `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} (${m.especialidad}) – ${parseFloat(m.precio).toFixed(2)} €/sesión</option>`;
+        }).join('');
 
     const selMaterial = document.getElementById('selectMaterial');
     selMaterial.innerHTML = '<option value="0" data-precio="0">Sin material</option>' +
@@ -217,9 +205,8 @@ async function initModal() {
             `<option value="${m.id}" data-precio="${m.precio}">${m.nombre} – ${parseFloat(m.precio).toFixed(2)} €/ud</option>`
         ).join('');
 
-    // Fecha mínima: hoy
     const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('inputFecha').min = hoy;
+    document.getElementById('inputFecha').min   = hoy;
     document.getElementById('inputFecha').value = hoy;
 
     actualizarResumen();
@@ -274,21 +261,20 @@ function actualizarResumen() {
 }
 
 async function confirmarReserva() {
-    const msgEl    = document.getElementById('modalMsg');
-    const pistaId  = document.getElementById('selectPista').value;
-    const fecha    = document.getElementById('inputFecha').value;
-    const horaIni  = document.getElementById('inputHoraInicio').value;
-    const horaFin  = document.getElementById('inputHoraFin').value;
-    const monId    = document.getElementById('selectMonitor').value;
-    const matId    = document.getElementById('selectMaterial').value;
-    const cantidad = document.getElementById('cantidadMaterial').value;
+    const msgEl   = document.getElementById('modalMsg');
+    const pistaId = document.getElementById('selectPista').value;
+    const fecha   = document.getElementById('inputFecha').value;
+    const horaIni = document.getElementById('inputHoraInicio').value;
+    const horaFin = document.getElementById('inputHoraFin').value;
+    const monId   = document.getElementById('selectMonitor').value;
+    const matId   = document.getElementById('selectMaterial').value;
+    const cantidad= document.getElementById('cantidadMaterial').value;
 
     if (!fecha || !horaIni || !horaFin) {
         msgEl.className = 'alerta error visible';
         msgEl.textContent = 'Rellena fecha y horario.';
         return;
     }
-
     if (horaFin <= horaIni) {
         msgEl.className = 'alerta error visible';
         msgEl.textContent = 'La hora de fin debe ser posterior a la de inicio.';
@@ -319,7 +305,6 @@ async function confirmarReserva() {
     }
 }
 
-// ─── ACTUALIZAR SALDO EN NAVBAR ───────────────────────────────
 function actualizarSaldoUI(saldo) {
     const el = document.getElementById('saldoDisplay');
     if (el) el.textContent = saldo;

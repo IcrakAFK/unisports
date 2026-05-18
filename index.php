@@ -12,9 +12,6 @@ if (!isset($_SESSION['usuario_rol'])) {
 if ($_SESSION['usuario_rol'] === 'admin') {
     header('Location: admin.php'); exit;
 }
-if ($_SESSION['usuario_rol'] === 'entrenador') {
-    header('Location: entrenador.php'); exit;
-}
 
 $nombre = $_SESSION['usuario_nombre'] ?? '';
 $email  = $_SESSION['usuario_email']  ?? '';
@@ -32,9 +29,11 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 </head>
 <body>
 
-<!-- NAVBAR -->
 <nav class="nav-barra">
-  <a class="nav-barra-brand" href="index.php">🏆 UniSport Booking</a>
+<a class="nav-barra-brand" href="index.php">
+  <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+  UniSport Booking
+</a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
     <a href="reservas.php">Mis Reservas</a>
@@ -43,10 +42,8 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   </div>
 </nav>
 
-<!-- LAYOUT PRINCIPAL -->
 <div class="main">
 
-  <!-- SIDEBAR -->
   <div class="lat-barra">
     <div class="caja">
       <div class="caja-header">USUARIO</div>
@@ -58,23 +55,20 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
         </div>
         <p><strong><?= $nombre ?></strong></p>
         <p class="muted"><?= $email ?></p>
-        <?= $rol ?>
+        <span class="badge-rol badge-rol"><?= $rol ?></span>
         <br><br>
         <span class="badge-saldo">Saldo: <span id="saldoDisplay"><?= $saldo ?></span> €</span>
       </div>
     </div>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
   <div class="contenido">
 
-    <!-- PRÓXIMAS RESERVAS -->
     <h5 class="section-titulo">📅 Mis Próximas Reservas</h5>
     <div class="grid" id="listaReservas">
       <p class="muted">Cargando reservas...</p>
     </div>
 
-    <!-- PISTAS DISPONIBLES -->
     <h5 class="section-titulo">🏟️ Pistas Disponibles Hoy</h5>
     <div class="grid" id="listaPistas">
       <p class="muted">Cargando pistas...</p>
@@ -83,12 +77,15 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   </div>
 </div>
 
-<!-- FOOTER -->
 <footer>
   UniSport Booking System &nbsp;|&nbsp; &copy; <?= date('Y') ?> Servicio de Deportes Universitarios &nbsp;|&nbsp;
+  <a href="aviso-legal.php">Aviso Legal</a> &nbsp;·&nbsp;
+  <a href="privacidad.php">Privacidad</a> &nbsp;·&nbsp;
+  <a href="cookies.php">Cookies</a>
 </footer>
 
-<!-- MODAL RESERVA -->
+<button class="flotante" title="Nueva Reserva" onclick="abrirModal()">+</button>
+
 <div class="modal-overlay" id="modalReserva">
   <div class="modal-box">
     <div class="modal-header">
@@ -98,40 +95,40 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
     <div class="modal-body">
       <div class="alerta" id="modalMsg"></div>
 
-      <div class="form-group">
+      <div class="form-grupo">
         <label>Pista</label>
         <select id="selectPista" onchange="actualizarResumen()"></select>
       </div>
 
-      <div class="form-group">
+      <div class="form-grupo">
         <label>Fecha</label>
         <input type="date" id="inputFecha" onchange="actualizarResumen()">
       </div>
 
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-grupo">
           <label>Hora inicio</label>
           <input type="time" id="inputHoraInicio" value="10:00" min="08:00" max="23:00" onchange="actualizarResumen()">
         </div>
-        <div class="form-group">
+        <div class="form-grupo">
           <label>Hora fin</label>
-          <input type="time" id="inputHoraFin" value="11:00" min="09:00" max="00:00" onchange="actualizarResumen()">
+          <input type="time" id="inputHoraFin" value="11:00" onchange="actualizarResumen()">
         </div>
       </div>
 
       <hr class="separador">
 
-      <div class="form-group">
+      <div class="form-grupo">
         <label>Monitor <span class="label-hint">(opcional)</span></label>
         <select id="selectMonitor" onchange="actualizarResumen()"></select>
       </div>
 
       <div class="form-row">
-        <div class="form-group flex-2">
+        <div class="form-grupo flex-2">
           <label>Material <span class="label-hint">(opcional)</span></label>
           <select id="selectMaterial" onchange="actualizarResumen()"></select>
         </div>
-        <div class="form-group flex-1">
+        <div class="form-grupo flex-1">
           <label>Cant.</label>
           <input type="number" id="cantidadMaterial" value="1" min="1" max="10" onchange="actualizarResumen()">
         </div>
@@ -154,7 +151,6 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 </div>
 
 <div id="toastContainer"></div>
-
 <script src="app.js"></script>
 </body>
 </html>
