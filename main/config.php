@@ -34,7 +34,15 @@ function requireLogin(): void {
 // Helper: redirigir si el rol no es el esperado
 function requireRol(string ...$roles): void {
     requireLogin();
-    if (!in_array($_SESSION['usuario_rol'] ?? '', $roles, true)) {
+    
+    // CORRECCIÓN: Si el rol no está en sesión, destruimos sospechas y mandamos a login.php
+    if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] === '') {
+        header('Location: login.php');
+        exit;
+    }
+    
+    // Si tiene un rol pero no es el autorizado para esta sección, va a index.php
+    if (!in_array($_SESSION['usuario_rol'], $roles, true)) {
         header('Location: index.php');
         exit;
     }

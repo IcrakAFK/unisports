@@ -5,7 +5,7 @@
 }
 
 body { 
-  font-family:'Roboto', sans-serif; 
+  font-family: Arial, Helvetica, sans-serif; 
   background:#f0f2f5; 
   color:#333; 
 }
@@ -122,12 +122,12 @@ body {
 }
 
 /* TEXTO */
-.muted, .badge-info { 
+.muted, .etiqueta-info { 
   color:#6c757d; 
   font-size:13px; 
 }
 
-.badge-info { 
+.etiqueta-info { 
   display:block; 
   font-size:12px; 
 }
@@ -138,8 +138,8 @@ body {
   border-bottom:2px solid #0056b3; 
   padding-bottom:4px; margin-bottom:14px; }
 
-/* BADGES */
-.badge-saldo { 
+/* ETIQUETAS */
+.etiqueta-saldo { 
   display:inline-block; 
   background:#0056b3; 
   color:#fff; 
@@ -148,36 +148,36 @@ body {
   margin-top:4px; 
 }
 
-.badge-rol { 
+.etiqueta-rol { 
   display:inline-block; 
   padding:2px 8px; 
   font-size:11px; 
   font-weight:700; 
 }
 
-.badge-rol-alumno { 
+.etiqueta-rol-alumno { 
   background:#cfe2ff; 
   color:#0a58ca; 
 }
 
-/* Unificación de Badges con idéntico color */
-.badge-rol-externo, .badge-estado-pend { 
+
+.etiqueta-rol-externo, .etiqueta-estado-pend { 
   background:#fff3cd; 
   color:#664d03; 
 }
 
-.badge-rol-admin, .badge-estado-mal, .alerta.error, .alerta.error-login { 
+.etiqueta-rol-admin, .etiqueta-estado-mal, .alerta.error, .alerta.error-login { 
   background:#f8d7da; 
   color:#842029; 
 }
 
-.badge-estado-ok, .alerta.success, .alerta.success-login { 
+.etiqueta-estado-ok, .alerta.success, .alerta.success-login { 
   background:#d1e7dd; 
   color:#0f5132; 
 }
 
 /* Unificación de estilos repetidos de estados */
-.badge-estado-ok, .badge-estado-mal, .badge-estado-pend {
+.etiqueta-estado-ok, .etiqueta-estado-mal, .etiqueta-estado-pend {
   padding:2px 6px; 
   font-size:12px; 
   font-weight:700;
@@ -462,7 +462,6 @@ footer a {
   padding:7px 9px; 
   border:1px solid #ced4da; 
   font-size:14px; 
-  font-family:inherit; 
 }
 
 .form-row { 
@@ -716,6 +715,91 @@ footer a {
 .legal-wrapper ul { 
   margin-left:18px; 
   margin-bottom:10px; 
+}
+
+/* ENTRENADOR */
+.agenda-tabla { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 14px; 
+}
+
+.agenda-tabla thead { 
+  background: #0056b3; 
+  color: #fff; 
+}
+
+.agenda-tabla th, .agenda-tabla td { 
+  padding: 11px 14px; 
+  border-bottom: 1px solid #eee; 
+  text-align: left; 
+}
+
+.etiqueta-hoy { 
+  background: #fff3cd; 
+  color: #664d03; 
+  padding: 2px 8px; 
+  font-size: 12px; 
+  font-weight: 700; 
+  margin-left: 6px; 
+}
+
+.etiqueta-pagado { 
+  background: #d1e7dd; 
+  color: #0f5132; 
+  padding: 3px 8px; 
+  font-size: 13px; 
+  font-weight: 600; 
+}
+
+.etiqueta-pendiente { 
+  background: #fff3cd; 
+  color: #664d03; 
+  padding: 3px 8px; 
+  font-size: 13px; 
+  font-weight: 600; 
+}
+
+.disponible { 
+  color: #28a745; 
+  font-weight: 700; 
+}
+
+.nodisponible { 
+  color: #dc3545; 
+  font-weight: 700; 
+}
+
+.btn-disponible, .btn-nodisponible { 
+  border: none; 
+  color: #fff; 
+  padding: 8px 18px; 
+  font-weight: 600; 
+  cursor: pointer; 
+  font-size: 14px; 
+  width: 100%; 
+}
+
+.btn-disponible { 
+  background: #dc3545; 
+}
+
+.btn-disponible:hover { 
+  background: #b02a37; 
+}
+
+.btn-nodisponible { 
+  background: #28a745; 
+}
+
+.btn-nodisponible:hover { 
+  background: #218838; 
+}
+
+.sin-clases { 
+  color: #6c757d; 
+  font-size: 14px; 
+  padding: 14px 0; 
 }
 
 /* RESPONSIVE */

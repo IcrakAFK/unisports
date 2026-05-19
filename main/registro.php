@@ -2,7 +2,7 @@
 session_start();
 require_once 'config.php';
 
-// Si ya está logueado, al inicio
+//SI ESTA LOGEADO
 if (isset($_SESSION['usuario_id'])) {
     header('Location: index.php');
     exit;
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'];
     $confirm  = $_POST['confirm'];
 
-    // Validaciones básicas
+    //VALIDAR
     if (empty($nombre) || empty($email) || empty($password)) {
         $error = 'Rellena todos los campos.';
     } elseif ($password != $confirm) {
@@ -27,20 +27,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } else {
         $db = getDB();
 
-        // Mirar si el email ya existe
+        //EMAIL EXISTE
         $sql_email = $db->prepare("SELECT id_user FROM usuarios WHERE email = ?");
         $sql_email->execute([$email]);
         
+        //ASIGNAR ROL
         if ($sql_email->fetch()) {
             $error = 'Este email ya está en uso.';
         } else {
-            // Lógica de rol simplificada
             $rol = 'externo';
-            if (strpos($email, '@unisport.es') !== false) {
-                $rol = 'alumno';
-            }
+            if (str_ends_with($email, '@unisport.es')) {
+            $rol = 'alumno';
+        }
 
-            // Guardar usuario - CAMBIO: Usamos $password directamente en lugar de cifrarla
+            //GUARDAR USER
             $sql_insert = $db->prepare("INSERT INTO usuarios (nombre, email, password, rol) VALUES (?, ?, ?, ?)");
             $sql_insert->execute([$nombre, $email, $password, $rol]);
 
@@ -79,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <input type="text" name="nombre" value="<?= $_POST['nombre'] ?? '' ?>" required>
                         </div>
                         <div class="form-grupo">
-                            <label>Email (@unisport.es para Alumno)</label>
+                            <label>Email (@unisport.es para alumnos)</label>
                             <input type="email" name="email" value="<?= $_POST['email'] ?? '' ?>" required>
                         </div>
                         <div class="form-grupo">

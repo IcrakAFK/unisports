@@ -2,7 +2,7 @@
 session_start();
 require_once 'config.php';
 
-// CONTROL DE ACCESO CORREGIDO: Usamos la variable exacta del login
+// CONTROL DE ACCESO CORREGIDO
 if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] !== 'admin') {
     header('Location: index.php');
     exit;
@@ -10,20 +10,25 @@ if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] !== 'admin') {
 
 $db = getDB();
 
-// 1. Contar cosas una por una
+//CONTAR USUARIOS/RESERVAS/PISTAS
 $num_usuarios  = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
 $num_reservas  = $db->query("SELECT COUNT(*) FROM reservas WHERE estado_pago = 'pagado'")->fetchColumn();
 $pistas_libres = $db->query("SELECT COUNT(*) FROM pistas WHERE estado = 'disponible'")->fetchColumn();
 
-// 2. Cargar las tablas completas sin JOINs raros
+//CARGAR TABLAS
 $pistas   = $db->query("SELECT * FROM pistas")->fetchAll();
 $usuarios = $db->query("SELECT * FROM usuarios")->fetchAll();
-$reservas = $db->query("SELECT * FROM reservas LIMIT 50")->fetchAll();
+$reservas = $db->query("SELECT r.*, u.nombre AS nombre_usuario, p.nombre_pista 
+                        FROM reservas r
+                        JOIN usuarios u ON r.id_user = u.id_user
+                        JOIN pistas p ON r.id_pista = p.id_pista
+                        LIMIT 50")->fetchAll();
 
-// Mensajes de alerta rápidos
+//MENSAJES ALERTA
 $msg = $_SESSION['admin_msg'] ?? '';
 unset($_SESSION['admin_msg']);
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -82,9 +87,9 @@ unset($_SESSION['admin_msg']);
             <td><?= $p['tipo_deporte'] ?></td>
             <td>
               <?php if ($p['estado'] == 'disponible'): ?>
-                <span class="badge-estado-ok">Disponible</span>
+                <span class="etiqueta-estado-ok">Disponible</span>
               <?php else: ?>
-                <span class="badge-estado-mal">Mantenimiento</span>
+                <span class="etiqueta-estado-mal">Mantenimiento</span>
               <?php endif; ?>
             </td>
             <td>
@@ -107,15 +112,21 @@ unset($_SESSION['admin_msg']);
   <div class="caja caja-detalle" style="margin-bottom:32px;">
     <table class="tabla-detalle">
         <thead>
-          <tr><th>ID Usuario</th><th>ID Pista</th><th>Fecha / Hora</th><th>Total</th><th>Acción</th></tr>
+          <tr>
+            <th>Usuario</th>
+            <th>Pista</th>
+            <th>Fecha / Hora</th>
+            <th>Total</th>
+            <th>Accion</th>
+          </tr>
         </thead>
         <tbody>
           <?php foreach ($reservas as $r): ?>
           <tr>
-            <td>ID User: <?= $r['id_user'] ?></td>
-            <td>ID Pista: <?= $r['id_pista'] ?></td>
-            <td><?= $r['fecha'] ?> (<?= $r['hora_inicio'] ?>)</td>
-            <td><?= $r['precio_final'] ?> €</td>
+            <td><?= $r['nombre_usuario'] ?></td>
+            <td><?= $r['nombre_pista'] ?></td>
+            <td><?= $r['fecha'] ?> <?= $r['hora_inicio'] ?></td>
+            <td><?= number_format($r['precio_final'], 2) ?> €</td>
             <td>
               <?php if ($r['estado_pago'] != 'cancelada'): ?>
               <form method="POST" action="api_admin.php">
@@ -135,7 +146,13 @@ unset($_SESSION['admin_msg']);
   <div class="caja caja-detalle">
     <table class="tabla-detalle">
         <thead>
-          <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Saldo</th><th>Cambiar Rol</th></tr>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Saldo</th>
+            <th>Cambiar Rol</th>
+          </tr>
         </thead>
         <tbody>
           <?php foreach ($usuarios as $u): ?>
@@ -143,7 +160,7 @@ unset($_SESSION['admin_msg']);
             <td><?= $u['nombre'] ?></td>
             <td><?= $u['email'] ?></td>
             <td><?= $u['rol'] ?></td>
-            <td><?= $u['saldo'] ?> €</td>
+            <td><?= number_format($u['saldo'], 2) ?> €</td>
             <td>
               <?php if ($u['rol'] != 'admin'): ?>
               <form method="POST" action="api_admin.php">
@@ -167,7 +184,10 @@ unset($_SESSION['admin_msg']);
 </div>
 
 <footer>
-  UniSport Booking System &nbsp;|&nbsp; &copy; <?= date('Y') ?>
+  UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
+  <a href="aviso-legal.php">Aviso Legal</a> ·
+  <a href="privacidad.php">Privacidad</a> ·
+  <a href="cookies.php">Cookies</a>
 </footer>
 
 </body>

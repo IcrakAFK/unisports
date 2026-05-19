@@ -24,8 +24,11 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniSport Booking – Inicio</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
 </head>
 <body>
 
@@ -48,16 +51,21 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
     <div class="caja">
       <div class="caja-header">USUARIO</div>
       <div class="caja-body">
-        <div class="user-avatar">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-          </svg>
-        </div>
+        <div class="user-avatar" style="margin:0 auto 20px;">
+            <i class="fa fa-user"></i>
+          </div>
         <p><strong><?= $nombre ?></strong></p>
         <p class="muted"><?= $email ?></p>
-        <span class="badge-rol badge-rol"><?= $rol ?></span>
+        <span class="etiqueta-rol etiqueta-rol"><?= $rol ?></span>
         <br><br>
-        <span class="badge-saldo">Saldo: <span id="saldoDisplay"><?= $saldo ?></span> €</span>
+        <span class="etiqueta-saldo">Saldo: <span id="saldoDisplay"><?= $saldo ?></span> €</span>
+      </div>
+    </div>
+
+    <div class="caja" style="margin-top: 20px;">
+      <div class="caja-header">📅 SELECCIONAR FECHA</div>
+      <div class="caja-body" style="padding: 10px;">
+        <div id="calendarioFijo"></div>
       </div>
     </div>
   </div>
@@ -78,9 +86,9 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 </div>
 
 <footer>
-  UniSport Booking System &nbsp;|&nbsp; &copy; <?= date('Y') ?> Servicio de Deportes Universitarios &nbsp;|&nbsp;
-  <a href="aviso-legal.php">Aviso Legal</a> &nbsp;·&nbsp;
-  <a href="privacidad.php">Privacidad</a> &nbsp;·&nbsp;
+  UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
+  <a href="aviso-legal.php">Aviso Legal</a> ·
+  <a href="privacidad.php">Privacidad</a> ·
   <a href="cookies.php">Cookies</a>
 </footer>
 
@@ -102,7 +110,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
       <div class="form-grupo">
         <label>Fecha</label>
-        <input type="date" id="inputFecha" onchange="actualizarResumen()">
+        <input type="text" id="inputFecha" placeholder="Selecciona una fecha..." readonly>
       </div>
 
       <div class="form-row">
@@ -129,7 +137,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
           <select id="selectMaterial" onchange="actualizarResumen()"></select>
         </div>
         <div class="form-grupo flex-1">
-          <label>Cant.</label>
+          <label>Cantidad</label>
           <input type="number" id="cantidadMaterial" value="1" min="1" max="10" onchange="actualizarResumen()">
         </div>
       </div>
@@ -152,5 +160,24 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
 <div id="toastContainer"></div>
 <script src="app.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('calendarioFijo')) {
+        flatpickr("#calendarioFijo", {
+            inline: true, // Mantiene el calendario abierto permanentemente
+            locale: "es",
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr, instance) {
+                // Función que refresca el catálogo de pistas disponibles según el día pinchado
+                if (typeof actualizarPistasDisponibles === "function") {
+                    actualizarPistasDisponibles(dateStr);
+                }
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

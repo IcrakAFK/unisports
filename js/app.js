@@ -118,9 +118,9 @@ async function cargarHistorial() {
         }
 
         tbody.innerHTML = d.reservas.map(rv => {
-            const estadoClass = rv.estado_pago === 'pagado'    ? 'badge-estado-ok'
-                              : rv.estado_pago === 'cancelada' ? 'badge-estado-mal'
-                              : 'badge-estado-pend';
+            const estadoClass = rv.estado_pago === 'pagado'    ? 'etiqueta-estado-ok'
+                              : rv.estado_pago === 'cancelada' ? 'etiqueta-estado-mal'
+                              : 'etiqueta-estado-pend';
 
             const cancelBtn = rv.estado_pago !== 'cancelada'
                 ? `<button class="btn-cancelar" onclick="cancelarReservaHistorial(${rv.id})">Cancelar</button>`
@@ -129,7 +129,7 @@ async function cargarHistorial() {
             return `
                 <tr>
                     <td>${rv.id}</td>
-                    <td>${rv.pista}<span class="badge-info">${rv.deporte}</span></td>
+                    <td>${rv.pista}<span class="etiqueta-info">${rv.deporte}</span></td>
                     <td>${fechaLegible(rv.fecha)}</td>
                     <td>${rv.hora_inicio.slice(0,5)} – ${rv.hora_fin.slice(0,5)}</td>
                     <td>${rv.monitor_nombre || '—'}</td>

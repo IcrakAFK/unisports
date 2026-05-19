@@ -22,13 +22,13 @@ session_start();
   
   <h2>1. Datos del Titular</h2>
   <ul>
-    [cite_start]<li><strong>Entidad:</strong> Servicio de Deportes de la Universidad de UniSport [cite: 213]</li>
+    <li><strong>Entidad:</strong> Servicio de Deportes de la Universidad de UniSport</li>
     <li><strong>Domicilio Social:</strong> Campus Universitario s/n</li>
     <li><strong>Contacto:</strong> deportes@unisport.es</li>
   </ul>
 
   <h2>2. Propiedad Intelectual</h2>
-  [cite_start]<p>El código fuente, los diseños gráficos, las imágenes y los algoritmos de este software son propiedad intelectual exclusiva de su autor o de la institución académica[cite: 212]. Queda prohibida su reproducción total o parcial sin autorización previa.</p>
+  <p>El código fuente, los diseños gráficos, las imágenes y los algoritmos de este software son propiedad intelectual exclusiva de su autor o de la institución académica. Queda prohibida su reproducción total o parcial sin autorización previa.</p>
   
   <p style="margin-top:20px;"><a href="index.php">← Volver al Inicio</a></p>
 </div>

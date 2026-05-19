@@ -4,9 +4,9 @@ require_once 'config.php';
 requireLogin();
 
 $db  = getDB();
-$st  = $db->prepare('SELECT * FROM usuarios WHERE id_user = ?');
-$st->execute([$_SESSION['usuario_id']]);
-$user = $st->fetch();
+$consulta  = $db->prepare('SELECT * FROM usuarios WHERE id_user = ?');
+$consulta->execute([$_SESSION['usuario_id']]);
+$user = $consulta->fetch();
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -14,16 +14,15 @@ $user = $st->fetch();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Perfil – UniSport Booking</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <nav class="nav-barra">
-<a class="nav-barra-brand" href="index.php">
-  <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
-  UniSport Booking
-</a>
+  <a class="nav-barra-brand" href="index.php">
+    <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+    UniSport Booking
+  </a>
   <div class="nav-links">
     <a href="index.php">Inicio</a>
     <a href="reservas.php">Mis Reservas</a>
@@ -62,7 +61,7 @@ $user = $st->fetch();
           </table>
 
           <div class="btn-volver">
-            <a href="index.php">← Volver al inicio</a>
+            <a href="index.php"><- Volver al inicio</a>
           </div>
         </div>
       </div>
@@ -71,7 +70,10 @@ $user = $st->fetch();
 </div>
 
 <footer>
-  UniSport Booking System &nbsp;|&nbsp; &copy; <?= date('Y') ?> Servicio de Deportes Universitarios &nbsp;|&nbsp;
+  UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
+  <a href="aviso-legal.php">Aviso Legal</a> ·
+  <a href="privacidad.php">Privacidad</a> ·
+  <a href="cookies.php">Cookies</a>
 </footer>
 
 </body>
