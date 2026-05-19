@@ -10,7 +10,7 @@ $pdo = getDB();
 $fecha_hoy = date('Y-m-d');
 $msg = '';
 
-//DATOS MONITOR (CORRECCIÓN: Vinculación robusta mediante la clave foránea id_user)
+//DATOS MONITOR 
 $consulta = $pdo->prepare('SELECT * FROM monitores WHERE id_user = ? LIMIT 1');
 $consulta->execute([$_SESSION['usuario_id']]);
 $monitor = $consulta->fetch();

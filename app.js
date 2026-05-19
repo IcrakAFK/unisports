@@ -27,6 +27,27 @@ let cachePistas     = [];
 let cacheMonitores  = [];
 let cacheMateriales = [];
 
+// Fecha activa seleccionada en el calendario (por defecto hoy)
+let fechaSeleccionada = new Date().toISOString().split('T')[0];
+
+// Llamada desde el calendario al pinchar un día
+function actualizarPistasDisponibles(dateStr) {
+    fechaSeleccionada = dateStr;
+
+    // Actualizar título
+    const titulo = document.getElementById('tituloPistas');
+    if (titulo) {
+        const [y, m, d] = dateStr.split('-');
+        const hoy = new Date().toISOString().split('T')[0];
+        titulo.textContent = dateStr === hoy
+            ? '🏟️ Pistas Disponibles Hoy'
+            : `🏟️ Pistas Disponibles – ${d}/${m}/${y}`;
+    }
+
+    // Re-cargar pistas para ese día
+    cargarPistas();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const pagina = detectarPagina();
     if (pagina === 'index') {
@@ -145,31 +166,53 @@ async function cargarHistorial() {
     }
 }
 
+// ─── MODAL CANCELAR ───────────────────────────────────────────
+function abrirModalCancelar(id, callback) {
+    const overlay = document.getElementById('modalCancelar');
+    const btn     = document.getElementById('btnConfirmarCancelar');
+    if (!overlay || !btn) { callback(id); return; }
+    overlay.classList.add('activo');
+    // Clonar el botón para eliminar cualquier listener anterior
+    const btnNuevo = btn.cloneNode(true);
+    btn.parentNode.replaceChild(btnNuevo, btn);
+    btnNuevo.addEventListener('click', () => {
+        cerrarModalCancelar();
+        callback(id);
+    });
+}
+
+function cerrarModalCancelar() {
+    const overlay = document.getElementById('modalCancelar');
+    if (overlay) overlay.classList.remove('activo');
+}
+
 // ─── CANCELAR (index) ─────────────────────────────────────────
-async function cancelarReserva(id) {
-    if (!confirm('¿Seguro que quieres cancelar esta reserva? Se te devolverá el importe completo.')) return;
-    const fd = new FormData();
-    fd.append('action', 'cancelar');
-    fd.append('reserva_id', id);
-    const r = await fetch('api.php', { method: 'POST', body: fd });
-    const d = await r.json();
-    toast(d.msg, d.ok ? 'success' : 'error');
-    if (d.ok) {
-        actualizarSaldoUI(d.saldo);
-        cargarReservasProximas();
-    }
+function cancelarReserva(id) {
+    abrirModalCancelar(id, async (reservaId) => {
+        const fd = new FormData();
+        fd.append('action', 'cancelar');
+        fd.append('reserva_id', reservaId);
+        const r = await fetch('api.php', { method: 'POST', body: fd });
+        const d = await r.json();
+        toast(d.msg, d.ok ? 'success' : 'error');
+        if (d.ok) {
+            actualizarSaldoUI(d.saldo);
+            cargarReservasProximas();
+        }
+    });
 }
 
 // ─── CANCELAR (historial) ─────────────────────────────────────
-async function cancelarReservaHistorial(id) {
-    if (!confirm('¿Cancelar esta reserva? Se te devolverá el importe completo.')) return;
-    const fd = new FormData();
-    fd.append('action', 'cancelar');
-    fd.append('reserva_id', id);
-    const r = await fetch('api.php', { method: 'POST', body: fd });
-    const d = await r.json();
-    toast(d.msg, d.ok ? 'success' : 'error');
-    if (d.ok) cargarHistorial();
+function cancelarReservaHistorial(id) {
+    abrirModalCancelar(id, async (reservaId) => {
+        const fd = new FormData();
+        fd.append('action', 'cancelar');
+        fd.append('reserva_id', reservaId);
+        const r = await fetch('api.php', { method: 'POST', body: fd });
+        const d = await r.json();
+        toast(d.msg, d.ok ? 'success' : 'error');
+        if (d.ok) cargarHistorial();
+    });
 }
 
 // ─── MODAL ────────────────────────────────────────────────────
@@ -215,6 +258,9 @@ async function initModal() {
 function abrirModal() {
     document.getElementById('modalReserva').classList.add('activo');
     document.getElementById('modalMsg').classList.remove('visible', 'error', 'success');
+    // Prellenar la fecha con la seleccionada en el calendario
+    const inputFecha = document.getElementById('inputFecha');
+    if (inputFecha && fechaSeleccionada) inputFecha.value = fechaSeleccionada;
 }
 
 function abrirModalConPista(idPista) {

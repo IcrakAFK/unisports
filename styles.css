@@ -62,15 +62,16 @@ body {
 
 /* LAYOUT */
 .main { 
-  padding:20px; 
+  padding:20px;
+  padding-left:60px;
   display:flex; 
   gap:20px; 
   align-items:flex-start; 
 }
 
 .lat-barra { 
-  width:220px; 
-  min-width:220px;
+  width:260px; 
+  min-width:260px;
 }
 
 .contenido { 
@@ -717,6 +718,28 @@ footer a {
   margin-bottom:10px; 
 }
 
+/* CALENDARIO INLINE - ajusta flatpickr al ancho del contenedor */
+#calendarioFijo .flatpickr-calendar,
+.flatpickr-calendar.inline {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+#calendarioFijo .flatpickr-calendar .flatpickr-rContainer,
+#calendarioFijo .flatpickr-calendar .flatpickr-days,
+#calendarioFijo .flatpickr-calendar .dayContainer {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+#calendarioFijo .flatpickr-calendar .flatpickr-day {
+  max-width: none !important;
+  flex: 1 !important;
+}
+
 /* ENTRENADOR */
 .agenda-tabla { 
   width: 100%; 
@@ -801,11 +824,31 @@ footer a {
   font-size: 14px; 
   padding: 14px 0; 
 }
+/* Opcional: Centra perfectamente el nombre del mes si se desplaza un poco */
+.flatpickr-current-month {
+    padding: 0 !important;
+}
+
+/* Oculta por completo el bloque del año en el calendario */
+.flatpickr-current-month .numInputWrapper {
+    display: none !important;
+}
+
+/* Fuerza a que las flechas laterales sigan siendo visibles */
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    visibility: visible !important;
+}
+
+/* Da un ajuste estético para que la cabecera no se quede demasiado alta o vacía */
+.flatpickr-month {
+    height: 40px !important;
+}
 
 /* RESPONSIVE */
 @media (max-width:768px) {
-  .main { flex-direction:column; }
-  .lat-barra { width:100%; }
+  .main { flex-direction:column; padding-left:20px; }
+  .lat-barra { width:100%; min-width:unset; }
   .grid { grid-template-columns:1fr 1fr; }
 }
 @media (max-width:480px) {
