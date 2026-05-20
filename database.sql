@@ -1,12 +1,8 @@
--- =============================================
---  UNISPORT BOOKING - database.sql
---  Ejecutar en phpMyAdmin → pestaña SQL
--- =============================================
-
+-- CREAR DATABASE --
 CREATE DATABASE IF NOT EXISTS unisport_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE unisport_db;
 
--- ---- USUARIOS ----
+-- USUARIOS --
 CREATE TABLE usuarios (
     id_user          INT(11)          AUTO_INCREMENT PRIMARY KEY,
     nombre           VARCHAR(100)     NOT NULL,
@@ -17,7 +13,7 @@ CREATE TABLE usuarios (
     fecha_registro   TIMESTAMP        DEFAULT CURRENT_TIMESTAMP
 );
 
--- ---- PISTAS ----
+-- PISTAS --
 CREATE TABLE pistas (
     id_pista         INT(11)          AUTO_INCREMENT PRIMARY KEY,
     nombre_pista     VARCHAR(50)      NOT NULL,
@@ -26,8 +22,8 @@ CREATE TABLE pistas (
     estado           ENUM('disponible','mantenimiento') NOT NULL DEFAULT 'disponible'
 );
 
--- ---- MONITORES ----
--- Un monitor puede tener un usuario asociado (para que pueda hacer login)
+-- MONITORES --
+-- MONITOR PUEDE TENER USER ASOCIADO --
 CREATE TABLE monitores (
     id_monitor       INT(11)          AUTO_INCREMENT PRIMARY KEY,
     id_user          INT(11)          DEFAULT NULL,
@@ -38,7 +34,7 @@ CREATE TABLE monitores (
     FOREIGN KEY (id_user) REFERENCES usuarios(id_user) ON DELETE SET NULL
 );
 
--- ---- MATERIAL ----
+-- MATERIAL --
 CREATE TABLE material (
     id_material      INT(11)          AUTO_INCREMENT PRIMARY KEY,
     nombre_material  VARCHAR(50)      NOT NULL,
@@ -46,7 +42,7 @@ CREATE TABLE material (
     precio_alquiler  DECIMAL(10,2)    NOT NULL
 );
 
--- ---- RESERVAS ----
+-- RESERVAS --
 CREATE TABLE reservas (
     id_reserva       INT(11)          AUTO_INCREMENT PRIMARY KEY,
     id_user          INT(11)          NOT NULL,
@@ -57,12 +53,13 @@ CREATE TABLE reservas (
     hora_fin         TIME             NOT NULL,
     precio_final     DECIMAL(10,2)    NOT NULL DEFAULT 0.00,
     estado_pago      ENUM('pendiente','pagado','cancelada') NOT NULL DEFAULT 'pendiente',
+    cancelada        cancelada TINYINT(1) NOT NULL DEFAULT 0,
     FOREIGN KEY (id_user)    REFERENCES usuarios(id_user),
     FOREIGN KEY (id_pista)   REFERENCES pistas(id_pista),
     FOREIGN KEY (id_monitor) REFERENCES monitores(id_monitor) ON DELETE SET NULL
 );
 
--- ---- RESERVA_MATERIAL ----
+-- RESERVA_MATERIAL --
 CREATE TABLE reserva_material (
     id_reserva       INT(11)          NOT NULL,
     id_material      INT(11)          NOT NULL,
@@ -72,10 +69,8 @@ CREATE TABLE reserva_material (
     FOREIGN KEY (id_material) REFERENCES material(id_material)
 );
 
--- =============================================
---  DATOS DE PRUEBA
--- =============================================
 
+-- DATOS PRUEBA --
 INSERT INTO usuarios (nombre, email, password, rol, saldo) VALUES
 ('Pepe Alumno',      'pepe.alumno@unisport.es',      'password', 'alumno',     50.00),
 ('Ana Externa',      'ana.externa@gmail.com',         'password', 'externo',    20.00),
@@ -83,7 +78,7 @@ INSERT INTO usuarios (nombre, email, password, rol, saldo) VALUES
 ('Laura Pérez',      'laura.entrenador@unisport.es',  'password', 'entrenador', 0.00),
 ('Admin UniSport',   'admin@unisport.es',             'password', 'admin',      0.00);
 
--- Pistas
+-- PISTAS
 INSERT INTO pistas (nombre_pista, tipo_deporte, precio_hora, estado) VALUES
 ('Pista Tenis 1',    'Tenis',       5.00,  'disponible'),
 ('Campo Fútbol A',   'Fútbol',      10.00, 'disponible'),
@@ -92,13 +87,13 @@ INSERT INTO pistas (nombre_pista, tipo_deporte, precio_hora, estado) VALUES
 ('Pista Voleibol',   'Voleibol',    4.00,  'disponible'),
 ('Pista Tenis 2',    'Tenis',       5.00,  'mantenimiento');
 
--- Monitores (vinculados a sus usuarios)
+-- MoONITORES
 INSERT INTO monitores (id_user, nombre, especialidad, precio_sesion, disponibilidad) VALUES
 (3, 'Carlos Gómez', 'Tenis',  20.00, 1),
 (4, 'Laura Pérez',  'Fútbol', 15.00, 1),
 (NULL, 'Mario Ruiz', 'Pádel', 18.00, 1);
 
--- Material
+-- MATERIAL
 INSERT INTO material (nombre_material, stock_total, precio_alquiler) VALUES
 ('Raqueta Tenis',  10, 3.00),
 ('Pelota Fútbol',  20, 1.00),

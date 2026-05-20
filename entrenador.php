@@ -8,7 +8,7 @@ if (!isset($_SESSION['usuario_id'])) {
 
 $pdo = getDB();
 $fecha_hoy = date('Y-m-d');
-$msg = '';
+$mensaje = '';
 
 //DATOS MONITOR 
 $consulta = $pdo->prepare('SELECT * FROM monitores WHERE id_user = ? LIMIT 1');
@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['disponibilidad'])) {
     $disponible = (int)$_POST['disponibilidad'];
     $pdo->prepare('UPDATE monitores SET disponibilidad = ? WHERE id_monitor = ?')->execute([$disponible, $id_monitor]);
     $monitor['disponibilidad'] = $disponible;
-    $msg = $disponible ? '✅ Estás disponible.' : '🔴 Estás no disponible.';
+    $mensaje = $disponible ? '✅ Estás disponible.' : '🔴 Estás no disponible.';
 }
 
 //AGENDA MONITOR
@@ -35,10 +35,9 @@ $consultaAgenda = $pdo->prepare('
     SELECT r.id_reserva, u.nombre AS alumno, p.nombre_pista AS pista,
            r.fecha, r.hora_inicio, r.hora_fin, r.precio_final, r.estado_pago
     FROM   reservas r
-    JOIN   reserva_monitor rm ON rm.id_reserva = r.id_reserva
     JOIN   usuarios u  ON u.id_user  = r.id_user
     JOIN   pistas   p  ON p.id_pista = r.id_pista
-    WHERE  rm.id_monitor = ? AND r.fecha BETWEEN ? AND ? AND r.estado_pago != "cancelada"
+    WHERE  r.id_monitor = ? AND r.fecha BETWEEN ? AND ? AND r.estado_pago != "cancelada"
     ORDER BY r.fecha, r.hora_inicio
 ');
 $consultaAgenda->execute([$id_monitor, $fecha_hoy, $fecha_fin]);
@@ -53,8 +52,8 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mi Agenda – UniSport Booking</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
 
@@ -68,9 +67,9 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
     <a href="#semana">Próximos 7 Días</a>
     <a href="logout.php" class="btn-logout">Cerrar Sesión</a>
   </div>
-</nav>>
+</nav>
 
-<div id="toastContainer"></div>
+<div id="mensajeTemporal"></div>
 
 <div class="main">
   <aside class="lat-barra">
@@ -98,11 +97,11 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
   </aside>
 
   <div class="contenido">
-    <?php if ($msg): ?>
-      <div class="alerta success visible"><?= $msg ?></div>
+    <?php if ($mensaje): ?>
+      <div class="alerta success visible"><?= $mensaje ?></div>
     <?php endif; ?>
 
-    <h5 class="section-titulo">📅 Clases de hoy — <?= $fecha_hoy ?></h5>
+    <h5 class="section-titulo" id="hoy">📅 Clases de hoy — <?= $fecha_hoy ?></h5>
     <?php if (empty($clases_hoy)): ?>
       <p class="sin-clases">No tienes clases asignadas para hoy.</p>
     <?php else: ?>
@@ -130,7 +129,7 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
       </div>
     <?php endif; ?>
 
-    <h5 class="section-titulo">🗓️ Próximos 7 días</h5>
+    <h5 class="section-titulo" id="semana">🗓️ Próximos 7 días</h5>
     <?php if (empty($clases_semana)): ?>
       <p class="sin-clases">No hay más clases programadas esta semana.</p>
     <?php else: ?>

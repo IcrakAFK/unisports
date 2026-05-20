@@ -25,6 +25,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UniSport Booking – Inicio</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -101,7 +102,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
       <button class="modal-cerrar" onclick="cerrarModal()">&times;</button>
     </div>
     <div class="modal-body">
-      <div class="alerta" id="modalMsg"></div>
+      <div class="alerta" id="modalMensaje"></div>
 
       <div class="form-grupo">
         <label>Pista</label>
@@ -110,7 +111,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
       <div class="form-grupo">
         <label>Fecha</label>
-        <input type="text" id="inputFecha" placeholder="Selecciona una fecha..." readonly>
+        <input type="text" id="inputFecha" placeholder="Selecciona una fecha...">
       </div>
 
       <div class="form-row">
@@ -158,7 +159,6 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   </div>
 </div>
 
-<!-- Modal confirmación cancelar reserva -->
 <div class="modal-overlay" id="modalCancelar">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-header">
@@ -177,14 +177,16 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   </div>
 </div>
 
-<div id="toastContainer"></div>
+<div id="mensajeTemporal"></div>
 <script src="app.js"></script>
 
 <script>
+let modalDatePicker;
+
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('calendarioFijo')) {
         flatpickr("#calendarioFijo", {
-            inline: true, // Mantiene el calendario abierto permanentemente
+            inline: true,
             locale: "es",
             minDate: "today",
             dateFormat: "Y-m-d",
@@ -192,13 +194,50 @@ document.addEventListener('DOMContentLoaded', () => {
             yearSelectorType: "static", 
             
             onChange: function(selectedDates, dateStr, instance) {
+                if (modalDatePicker) {
+                    modalDatePicker.setDate(dateStr);
+                }
                 if (typeof actualizarPistasDisponibles === "function") {
                     actualizarPistasDisponibles(dateStr);
                 }
             }
         });
     }
+
+    if (document.getElementById('inputFecha')) {
+        modalDatePicker = flatpickr("#inputFecha", {
+            locale: "es",
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            onChange: function(selectedDates, dateStr, instance) {
+                if (typeof actualizarResumen === "function") {
+                    actualizarResumen();
+                }
+            }
+        });
+    }
 });
+
+const originalAbrirModal = window.abrirModal;
+window.abrirModal = function(...args) {
+    if (typeof originalAbrirModal === "function") {
+        originalAbrirModal(...args);
+    } else {
+        const modal = document.getElementById('modalReserva');
+        if (modal) modal.classList.add('visible');
+    }
+
+    if (modalDatePicker) {
+        if (typeof fechaSeleccionada !== "undefined" && fechaSeleccionada) {
+            modalDatePicker.setDate(fechaSeleccionada);
+        } else {
+            modalDatePicker.setDate("today");
+        }
+        if (typeof actualizarResumen === "function") {
+            actualizarResumen();
+        }
+    }
+};
 </script>
 </body>
 </html>

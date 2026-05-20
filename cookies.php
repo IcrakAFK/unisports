@@ -27,7 +27,7 @@ session_start();
   <p>UniSport Booking utiliza única y exclusivamente <strong>cookies técnicas de sesión</strong> mediante la función nativa de PHP (<code>PHPSESSID</code>)Estas cookies sirven para saber si has iniciado sesión correctamente y mantener tu identidad activa mientras navegas por las diferentes pantallas.</p>
 
   <h2>3. Consentimiento</h2>
-  ]<p>Al tratarse de cookies estrictamente necesarias para el funcionamiento de la web, según el artículo 22.2 de la LSSI, <strong>no requieren el consentimiento explícito del usuario</strong>, aunque es obligatorio informar de su existencia en este apartado.</p>
+  <p>Al tratarse de cookies estrictamente necesarias para el funcionamiento de la web, según el artículo 22.2 de la LSSI, <strong>no requieren el consentimiento explícito del usuario</strong>, aunque es obligatorio informar de su existencia en este apartado.</p>
   
   <p style="margin-top:20px;"><a href="index.php">← Volver al Inicio</a></p>
 </div>

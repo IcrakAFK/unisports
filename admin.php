@@ -25,8 +25,8 @@ $reservas = $db->query("SELECT r.*, u.nombre AS nombre_usuario, p.nombre_pista
                         LIMIT 50")->fetchAll();
 
 //MENSAJES ALERTA
-$msg = $_SESSION['admin_msg'] ?? '';
-unset($_SESSION['admin_msg']);
+$mensaje = $_SESSION['admin_mensaje'] ?? '';
+unset($_SESSION['admin_mensaje']);
 ?>
 
 <!DOCTYPE html>
@@ -54,8 +54,8 @@ unset($_SESSION['admin_msg']);
 <div class="main-detalle">
 <div class="container-detalle">
 
-  <?php if ($msg != ""): ?>
-    <div class="alerta success visible"><?= $msg ?></div>
+  <?php if ($mensaje != ""): ?>
+    <div class="alerta success visible"><?= $mensaje ?></div>
   <?php endif; ?>
 
   <div class="grid" style="margin-bottom:32px;">

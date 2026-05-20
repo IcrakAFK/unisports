@@ -13,6 +13,7 @@ requireLogin();
 </head>
 <body>
 
+<!-- BARRA NAVEGACION -->
 <nav class="nav-barra">
 <a class="nav-barra-brand" href="index.php">
   <img src="logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
@@ -64,7 +65,7 @@ requireLogin();
   <a href="cookies.php">Cookies</a>
 </footer>
 
-<!-- Modal confirmación cancelar reserva -->
+<!-- MODAL CANCELAR RESERVA -->
 <div class="modal-overlay" id="modalCancelar">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-header">
@@ -74,7 +75,7 @@ requireLogin();
     <div class="modal-body" style="text-align:center; padding:24px 18px;">
       <div style="font-size:42px; margin-bottom:12px;">⚠️</div>
       <p style="font-size:15px; margin-bottom:6px;"><strong>¿Seguro que quieres cancelar esta reserva?</strong></p>
-      <p class="muted" style="font-size:13px;">Se te devolverá el importe completo a tu saldo.</p>
+      <p class="muted" style="font-size:13px;">La reserva se marcará como cancelada y se te devolverá el importe completo a tu saldo.</p>
     </div>
     <div class="modal-footer">
       <button class="btn-secundario" onclick="cerrarModalCancelar()">No, volver</button>
@@ -83,7 +84,7 @@ requireLogin();
   </div>
 </div>
 
-<div id="toastContainer"></div>
+<div id="mensajeTemporal"></div>
 <script src="app.js"></script>
 </body>
 </html>
