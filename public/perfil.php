@@ -37,7 +37,7 @@ if (isset($_GET['ticket'])) {
 
 <nav class="nav-barra">
   <a class="nav-barra-brand" href="index.php">
-    <img src="assets/logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+     <img src="../assets/logo.png" alt="UniSport Logo" class="logo-unisport">
     UniSport Booking
   </a>
   <div class="nav-links">
@@ -50,6 +50,7 @@ if (isset($_GET['ticket'])) {
 
 <div class="main">
 
+<!-- PERFIL USUARIO -->
   <div class="contenido perfil-container">
     <div class="perfil-wrapper">
       
@@ -81,6 +82,7 @@ if (isset($_GET['ticket'])) {
         </div>
       </div>
 
+<!-- TICKETS RESERVA -->
       <?php if ($ticket): ?>
       <div class="caja" style="margin-top: 24px;">
         <div class="caja-header" style="background:#28a745;">✅ RESERVA CONFIRMADA – TICKET #<?= $ticket['id'] ?></div>
@@ -91,7 +93,9 @@ if (isset($_GET['ticket'])) {
             <tr><td class="label">Horario</td><td><?= $ticket['hora_inicio'] ?> – <?= $ticket['hora_fin'] ?></td></tr>
             <tr><td class="label">Total pagado</td><td><strong><?= $ticket['total'] ?> €</strong></td></tr>
           </table>
-          <div class="btn-volver" style="margin-top:14px;">
+          <div class="btn-volver";>
+
+<!-- RESERVAS USUARIOS -->
             <a href="reservas.php">Ver todas mis reservas</a>
           </div>
         </div>
@@ -105,9 +109,9 @@ if (isset($_GET['ticket'])) {
 
 <footer>
   UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
-  <a href="pages/aviso-legal.php">Aviso Legal</a> ·
-  <a href="pages/privacidad.php">Privacidad</a> ·
-  <a href="pages/cookies.php">Cookies</a>
+  <a href="paginas/aviso-legal.php">Aviso Legal</a> ·
+  <a href="paginas/privacidad.php">Privacidad</a> ·
+  <a href="paginas/cookies.php">Cookies</a>
 </footer>
 
 </body>

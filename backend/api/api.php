@@ -10,8 +10,8 @@ if (!isset($_SESSION['usuario_id'])) {
 }
 
 $id_user = (int) $_SESSION['usuario_id'];
-$accion  = $_GET['action'] ?? $_POST['action'] ?? '';
-$pdo     = getDB();
+$accion = $_GET['action'] ?? $_POST['action'] ?? '';
+$pdo = getDB();
 
 //PISTAS
 if ($accion == 'pistas') {
@@ -71,13 +71,13 @@ if ($accion == 'historial') {
 //RESERVAR
 if ($accion == 'reservar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    $id_pista    = (int) ($_POST['pista_id']    ?? 0);
-    $fecha       = trim($_POST['fecha']         ?? '');
-    $hora_inicio = trim($_POST['hora_inicio']   ?? '');
-    $hora_fin    = trim($_POST['hora_fin']       ?? '');
-    $id_monitor  = (int) ($_POST['monitor_id']  ?? 0);
+    $id_pista = (int) ($_POST['pista_id'] ?? 0);
+    $fecha = trim($_POST['fecha'] ?? '');
+    $hora_inicio = trim($_POST['hora_inicio'] ?? '');
+    $hora_fin = trim($_POST['hora_fin'] ?? '');
+    $id_monitor = (int) ($_POST['monitor_id'] ?? 0);
     $id_material = (int) ($_POST['material_id'] ?? 0);
-    $cantidad    = max(1, (int) ($_POST['cantidad'] ?? 1));
+    $cantidad = max(1, (int) ($_POST['cantidad'] ?? 1));
 
     //VALIDAR
     if (!$id_pista || !$fecha || !$hora_inicio || !$hora_fin) {
@@ -99,11 +99,11 @@ if ($accion == 'reservar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     //COSTES
-    $horas       = (strtotime($hora_fin) - strtotime($hora_inicio)) / 3600;
+    $horas = (strtotime($hora_fin) - strtotime($hora_inicio)) / 3600;
     $coste_total = round($pista['precio_hora'] * $horas, 2);
 
-    $monitor_id_ok  = null;
-    $material_id_ok = null;
+    $monitor_id_bien  = null;
+    $material_id_bien = null;
 
     //MONITOR
     if ($id_monitor > 0) {
@@ -114,7 +114,7 @@ if ($accion == 'reservar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(['ok' => false, 'mensaje' => 'El monitor no está disponible.']); exit;
         }
         $coste_total  += (float) $precio;
-        $monitor_id_ok = $id_monitor;
+        $monitor_id_bien = $id_monitor;
     }
 
     //MATERIAL
@@ -126,7 +126,7 @@ if ($accion == 'reservar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
             echo json_encode(['ok' => false, 'mensaje' => 'Stock insuficiente.']); exit;
         }
         $coste_total   += round((float)$mat['precio_alquiler'] * $cantidad, 2);
-        $material_id_ok = $id_material;
+        $material_id_bien = $id_material;
     }
 
     //SOLAPACION
@@ -137,33 +137,33 @@ if ($accion == 'reservar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
         echo json_encode(['ok' => false, 'mensaje' => 'La pista ya está reservada en ese horario.']); exit;
     }
 
-    //INSERTAR RESERVA (estado: pendiente de pago en taquilla)
+    //INSERTAR RESERVA 
     $pdo->beginTransaction();
     try {
         $consulta = $pdo->prepare("INSERT INTO reservas (id_user, id_pista, id_monitor, fecha, hora_inicio, hora_fin, precio_final, estado_pago) 
                                    VALUES (?, ?, ?, ?, ?, ?, ?, 'pendiente')");
-        $consulta->execute([$id_user, $id_pista, $monitor_id_ok, $fecha, $hora_inicio, $hora_fin, $coste_total]);
+        $consulta->execute([$id_user, $id_pista, $monitor_id_bien, $fecha, $hora_inicio, $hora_fin, $coste_total]);
         $id_nueva = (int) $pdo->lastInsertId();
 
-        if ($material_id_ok) {
+        if ($material_id_bien) {
             $consulta = $pdo->prepare("INSERT INTO reserva_material (id_reserva, id_material, cantidad) 
                                        VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE cantidad = VALUES(cantidad)");
-            $consulta->execute([$id_nueva, $material_id_ok, $cantidad]);
+            $consulta->execute([$id_nueva, $material_id_bien, $cantidad]);
         }
 
         $pdo->commit();
 
         echo json_encode([
-            'ok'      => true,
-            'mensaje' => '¡Reserva confirmada! Abona el importe en taquilla antes de tu sesión.',
-            'ticket'  => [
-                'id'          => $id_nueva,
-                'pista'       => $pista['nombre_pista'],
-                'deporte'     => $pista['tipo_deporte'],
-                'fecha'       => $fecha,
+            'ok' => true,
+            'mensaje' => '¡Reserva confirmada! Realice el pago en taquilla antes de tu sesión.',
+            'ticket' => [
+                'id' => $id_nueva,
+                'pista' => $pista['nombre_pista'],
+                'deporte' => $pista['tipo_deporte'],
+                'fecha' => $fecha,
                 'hora_inicio' => $hora_inicio,
-                'hora_fin'    => $hora_fin,
-                'total'       => number_format($coste_total, 2),
+                'hora_fin' => $hora_fin,
+                'total' => number_format($coste_total, 2),
             ]
         ]);
 
@@ -194,12 +194,17 @@ if ($accion == 'cancelar' && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $pdo->beginTransaction();
     try {
         $pdo->prepare("UPDATE reservas SET cancelada = 1, estado_pago = 'cancelada' WHERE id_reserva = ?")->execute([$id_reserva]);
+
+        $material = $pdo->prepare("SELECT id_material, cantidad FROM reserva_material WHERE id_reserva = ?");
+        $material->execute([$id_reserva]);
+        foreach ($material->fetchAll() as $fila) {
+            $pdo->prepare("UPDATE material SET stock_total = stock_total + ? WHERE id_material = ?")
+                ->execute([$fila['cantidad'], $fila['id_material']]);
+        }
+
         $pdo->commit();
 
-        echo json_encode([
-            'ok'      => true,
-            'mensaje' => 'Reserva cancelada correctamente.'
-        ]);
+        echo json_encode(['ok' => true, 'mensaje' => 'Reserva cancelada correctamente.']);
 
     } catch (Exception $e) {
         $pdo->rollBack();

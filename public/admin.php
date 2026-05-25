@@ -9,6 +9,7 @@ if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] !== 'admin') {
 
 $db = getDB();
 
+//NUMERO USERS/RESERVAS/PISTAS
 $num_usuarios  = $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
 $num_reservas  = $db->query("SELECT COUNT(*) FROM reservas WHERE estado_pago = 'pagado'")->fetchColumn();
 $pistas_libres = $db->query("SELECT COUNT(*) FROM pistas WHERE estado = 'disponible'")->fetchColumn();
@@ -36,7 +37,7 @@ unset($_SESSION['admin_mensaje']);
 
 <nav class="nav-barra">
   <a class="nav-barra-brand" href="index.php">
-    <img src="assets/logo.png" alt="UniSport Logo" style="height:50px;width:auto;vertical-align:middle;margin-right:8px;">
+    <img src="assets/logo.png" alt="UniSport Logo" class="logo-unisport">
     UniSport Booking - Admin
   </a>
   <div class="nav-links">
@@ -47,6 +48,7 @@ unset($_SESSION['admin_mensaje']);
   </div>
 </nav>
 
+<!-- PANEL PRINCIPAL -->
 <div class="main-detalle">
 <div class="container-detalle">
 
@@ -69,11 +71,19 @@ unset($_SESSION['admin_mensaje']);
     </div>
   </div>
 
+  <!-- GESTION DE PISTAS -->
   <h5 class="section-titulo" id="pistas">🏟️ Gestión de Pistas</h5>
   <div class="caja caja-detalle" style="margin-bottom:32px;">
     <table class="tabla-detalle">
       <thead>
-        <tr><th>ID</th><th>Nombre</th><th>Deporte</th><th>Precio/hora</th><th>Estado</th><th>Acción</th></tr>
+        <tr>
+          <th>ID</th>
+          <th>Nombre</th>
+          <th>Deporte</th>
+          <th>Precio/hora</th>
+          <th>Estado</th>
+          <th>Accion</th>
+        </tr>
       </thead>
       <tbody>
         <?php foreach ($pistas as $p): ?>
@@ -84,14 +94,14 @@ unset($_SESSION['admin_mensaje']);
           <td><?= number_format($p['precio_hora'], 2) ?> €</td>
           <td>
             <?php if ($p['estado'] == 'disponible'): ?>
-              <span class="etiqueta-estado-ok">Disponible</span>
+              <span class="etiqueta-estado-bien">Disponible</span>
             <?php else: ?>
               <span class="etiqueta-estado-mal">Mantenimiento</span>
             <?php endif; ?>
           </td>
           <td>
             <form method="POST" action="../backend/api/api_admin.php">
-              <input type="hidden" name="action" value="toggle_pista">
+              <input type="hidden" name="action" value="estado_pista">
               <input type="hidden" name="id_pista" value="<?= $p['id_pista'] ?>">
               <input type="hidden" name="estado" value="<?= $p['estado'] == 'disponible' ? 'mantenimiento' : 'disponible' ?>">
               <button type="submit" class="<?= $p['estado'] == 'disponible' ? 'btn-cancelar' : 'btn-reservar' ?>">
@@ -105,11 +115,19 @@ unset($_SESSION['admin_mensaje']);
     </table>
   </div>
 
+    <!-- GESTION DE RESERVAS -->
   <h5 class="section-titulo" id="reservas">📋 Reservas</h5>
   <div class="caja caja-detalle" style="margin-bottom:32px;">
     <table class="tabla-detalle">
       <thead>
-        <tr><th>Usuario</th><th>Pista</th><th>Fecha / Hora</th><th>Total</th><th>Estado</th><th>Acción</th></tr>
+        <tr>
+          <th>Usuario</th>
+          <th>Pista</th>
+          <th>Fecha / Hora</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Accion</th>
+        </tr>
       </thead>
       <tbody>
         <?php foreach ($reservas as $r): ?>
@@ -134,11 +152,17 @@ unset($_SESSION['admin_mensaje']);
     </table>
   </div>
 
+    <!-- GESTION DE USUARIOS -->
   <h5 class="section-titulo" id="usuarios">👥 Usuarios</h5>
   <div class="caja caja-detalle">
     <table class="tabla-detalle">
       <thead>
-        <tr><th>Nombre</th><th>Email</th><th>Rol</th><th>Cambiar Rol</th></tr>
+        <tr>
+          <th>Nombre</th>
+          <th>Email</th>
+          <th>Rol</th>
+          <th>Cambiar Rol</th>
+        </tr>
       </thead>
       <tbody>
         <?php foreach ($usuarios as $u): ?>
@@ -152,9 +176,9 @@ unset($_SESSION['admin_mensaje']);
               <input type="hidden" name="action" value="cambiar_rol">
               <input type="hidden" name="id_user" value="<?= $u['id_user'] ?>">
               <select name="nuevo_rol" onchange="this.form.submit()">
-                <option value="alumno"      <?= $u['rol']=='alumno'     ?'selected':'' ?>>Alumno</option>
-                <option value="externo"     <?= $u['rol']=='externo'    ?'selected':'' ?>>Externo</option>
-                <option value="entrenador"  <?= $u['rol']=='entrenador' ?'selected':'' ?>>Entrenador</option>
+                <option value="alumno" <?= $u['rol']=='alumno' ?'selected':'' ?>>Alumno</option>
+                <option value="externo" <?= $u['rol']=='externo' ?'selected':'' ?>>Externo</option>
+                <option value="entrenador" <?= $u['rol']=='entrenador' ?'selected':'' ?>>Entrenador</option>
               </select>
             </form>
             <?php endif; ?>
@@ -170,9 +194,9 @@ unset($_SESSION['admin_mensaje']);
 
 <footer>
   UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
-  <a href="pages/aviso-legal.php">Aviso Legal</a> ·
-  <a href="pages/privacidad.php">Privacidad</a> ·
-  <a href="pages/cookies.php">Cookies</a>
+  <a href="paginas/aviso-legal.php">Aviso Legal</a> ·
+  <a href="paginas/privacidad.php">Privacidad</a> ·
+  <a href="paginas/cookies.php">Cookies</a>
 </footer>
 
 </body>

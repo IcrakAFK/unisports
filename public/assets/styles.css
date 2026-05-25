@@ -46,20 +46,6 @@ body {
   color:#fff; 
 }
 
-.btn-logout { 
-  border:1px solid rgba(255,255,255,.5); 
-  color:#fff; 
-  background:transparent; 
-  padding:5px 12px; 
-  font-size:13px; 
-  cursor:pointer; 
-  text-decoration:none; 
-}
-
-.btn-logout:hover { 
-  background:rgba(255,255,255,.15); 
-}
-
 /* LAYOUT */
 .main { 
   padding:20px;
@@ -172,13 +158,12 @@ body {
   color:#842029; 
 }
 
-.etiqueta-estado-ok, .alerta.success, .alerta.success-login { 
+.etiqueta-estado-bien, .alerta.success, .alerta.success-login { 
   background:#d1e7dd; 
   color:#0f5132; 
 }
 
-/* Unificación de estilos repetidos de estados */
-.etiqueta-estado-ok, .etiqueta-estado-mal, .etiqueta-estado-pend {
+.etiqueta-estado-bien, .etiqueta-estado-mal, .etiqueta-estado-pend {
   padding:2px 6px; 
   font-size:12px; 
   font-weight:700;
@@ -345,6 +330,20 @@ body {
 
 .btn-entrar:hover { 
   background:#004099; 
+}
+
+.btn-logout { 
+  border:1px solid rgba(255,255,255,.5); 
+  color:#fff; 
+  background:transparent; 
+  padding:5px 12px; 
+  font-size:13px; 
+  cursor:pointer; 
+  text-decoration:none; 
+}
+
+.btn-logout:hover { 
+  background:rgba(255,255,255,.15); 
 }
 
 /* FAB */
@@ -516,6 +515,13 @@ footer a {
   margin-top:4px; 
 }
 
+/* IMAGEN */
+.logo-unisport {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+    margin-right: 8px;
+}
 
 /* ALERTAS */
 .alerta { 
@@ -597,6 +603,13 @@ footer a {
   text-align:left; 
   border-bottom:1px solid #eee; 
   font-size:14px; 
+}
+
+.tabla-cargando {
+    text-align: center;
+    color: #6c757d;      
+    font-style: italic;  
+    padding: 20px 0;
 }
 
 /* LOGIN */
@@ -718,7 +731,7 @@ footer a {
   margin-bottom:10px; 
 }
 
-/* CALENDARIO INLINE - ajusta flatpickr al ancho del contenedor */
+/* CALENDARIO INLINE */
 #calendarioFijo {
   overflow: hidden;
 }
@@ -743,6 +756,23 @@ footer a {
   max-width: none !important;
   flex: 1 1 0 !important;
   margin: 1px !important;
+}
+
+.flatpickr-current-month {
+    padding: 0 !important;
+}
+
+.flatpickr-current-month .numInputWrapper {
+    display: none !important;
+}
+
+.flatpickr-months .flatpickr-prev-month,
+.flatpickr-months .flatpickr-next-month {
+    visibility: visible !important;
+}
+
+.flatpickr-month {
+    height: 40px !important;
 }
 
 /* ENTRENADOR */
@@ -828,26 +858,6 @@ footer a {
   color: #6c757d; 
   font-size: 14px; 
   padding: 14px 0; 
-}
-/* Opcional: Centra perfectamente el nombre del mes si se desplaza un poco */
-.flatpickr-current-month {
-    padding: 0 !important;
-}
-
-/* Oculta por completo el bloque del año en el calendario */
-.flatpickr-current-month .numInputWrapper {
-    display: none !important;
-}
-
-/* Fuerza a que las flechas laterales sigan siendo visibles */
-.flatpickr-months .flatpickr-prev-month,
-.flatpickr-months .flatpickr-next-month {
-    visibility: visible !important;
-}
-
-/* Da un ajuste estético para que la cabecera no se quede demasiado alta o vacía */
-.flatpickr-month {
-    height: 40px !important;
 }
 
 /* RESPONSIVE */

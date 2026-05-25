@@ -22,10 +22,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $usuario = $st->fetch();
 
         if ($usuario && $password === $usuario['password']) {
-            $_SESSION['usuario_id']     = $usuario['id_user'];
+            $_SESSION['usuario_id'] = $usuario['id_user'];
             $_SESSION['usuario_nombre'] = $usuario['nombre'];
-            $_SESSION['usuario_email']  = $usuario['email'];
-            $_SESSION['usuario_rol']    = $usuario['rol'];
+            $_SESSION['usuario_email'] = $usuario['email'];
+            $_SESSION['usuario_rol'] = $usuario['rol'];
 
             if ($usuario['rol'] === 'admin') {
                 header('Location: admin.php');
@@ -53,9 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="login-screen">
         <div class="login-caja">
             <div class="login-header" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:15px;">
-                <img src="assets/logo.png" alt="UniSport Logo" style="height:60px;width:auto;">
+                <img src="assets/logo.png" alt="UniSport Logo" class="logo-unisport">
                 <span>UniSport Booking</span>
             </div>
+<!-- INICIO SESION -->
             <div class="login-body">
                 <h5>Iniciar Sesión</h5>
                 <?php if ($error): ?>
@@ -72,6 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <button type="submit" class="btn-entrar">Entrar</button>
                 </form>
+<!-- REGISTRO -->
                 <p class="login-registro">¿No tienes cuenta? <a href="registro.php">Regístrate aquí</a></p>
             </div>
         </div>

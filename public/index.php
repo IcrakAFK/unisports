@@ -14,8 +14,8 @@ if ($_SESSION['usuario_rol'] === 'admin') {
 }
 
 $nombre = $_SESSION['usuario_nombre'] ?? '';
-$email  = $_SESSION['usuario_email']  ?? '';
-$rol    = $_SESSION['usuario_rol']    ?? 'alumno';
+$email  = $_SESSION['usuario_email'] ?? '';
+$rol    = $_SESSION['usuario_rol'] ?? 'alumno';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -34,7 +34,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
 <nav class="nav-barra">
 <a class="nav-barra-brand" href="index.php">
-  <img src="assets/logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+  <img src="../assets/logo.png" alt="UniSport Logo" class="logo-unisport">
   UniSport Booking
 </a>
   <div class="nav-links">
@@ -47,6 +47,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
 <div class="main">
 
+<!-- DATOS USUARIO -->
   <div class="lat-barra">
     <div class="caja">
       <div class="caja-header">USUARIO</div>
@@ -61,6 +62,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
       </div>
     </div>
 
+<!-- CALENDARIO USUARIO -->
     <div class="caja" style="margin-top: 20px;">
       <div class="caja-header">📅 SELECCIONAR FECHA</div>
       <div class="caja-body" style="padding: 10px;">
@@ -71,11 +73,13 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
   <div class="contenido">
 
+<!-- RESERVAS USUARIO -->
     <h5 class="section-titulo">📅 Mis Próximas Reservas</h5>
     <div class="grid" id="listaReservas">
       <p class="muted">Cargando reservas...</p>
     </div>
 
+<!-- PISTAS DISPONIBLES -->
     <h5 class="section-titulo" id="tituloPistas">🏟️ Pistas Disponibles Hoy</h5>
     <div class="grid" id="listaPistas">
       <p class="muted">Cargando pistas...</p>
@@ -86,11 +90,12 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 
 <footer>
   UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
-  <a href="pages/aviso-legal.php">Aviso Legal</a> ·
-  <a href="pages/privacidad.php">Privacidad</a> ·
-  <a href="pages/cookies.php">Cookies</a>
+  <a href="paginas/aviso-legal.php">Aviso Legal</a> ·
+  <a href="paginas/privacidad.php">Privacidad</a> ·
+  <a href="paginas/cookies.php">Cookies</a>
 </footer>
 
+<!-- MODAL + RESERVA -->
 <button class="flotante" title="Nueva Reserva" onclick="abrirModal()">+</button>
 
 <div class="modal-overlay" id="modalReserva">
@@ -157,6 +162,7 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
   </div>
 </div>
 
+<!-- MODAL + RESERVA CANCELAR -->
 <div class="modal-overlay" id="modalCancelar">
   <div class="modal-box" style="max-width:380px;">
     <div class="modal-header">
@@ -177,64 +183,5 @@ $rol    = $_SESSION['usuario_rol']    ?? 'alumno';
 <div id="mensajeTemporal"></div>
 <script src="assets/app.js"></script>
 
-<script>
-let modalDatePicker;
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (document.getElementById('calendarioFijo')) {
-        flatpickr("#calendarioFijo", {
-            inline: true,
-            locale: "es",
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            monthSelectorType: "static", 
-            yearSelectorType: "static", 
-            
-            onChange: function(selectedDates, dateStr, instance) {
-                if (modalDatePicker) {
-                    modalDatePicker.setDate(dateStr);
-                }
-                if (typeof actualizarPistasDisponibles === "function") {
-                    actualizarPistasDisponibles(dateStr);
-                }
-            }
-        });
-    }
-
-    if (document.getElementById('inputFecha')) {
-        modalDatePicker = flatpickr("#inputFecha", {
-            locale: "es",
-            minDate: "today",
-            dateFormat: "Y-m-d",
-            onChange: function(selectedDates, dateStr, instance) {
-                if (typeof actualizarResumen === "function") {
-                    actualizarResumen();
-                }
-            }
-        });
-    }
-});
-
-const originalAbrirModal = window.abrirModal;
-window.abrirModal = function(...args) {
-    if (typeof originalAbrirModal === "function") {
-        originalAbrirModal(...args);
-    } else {
-        const modal = document.getElementById('modalReserva');
-        if (modal) modal.classList.add('visible');
-    }
-
-    if (modalDatePicker) {
-        if (typeof fechaSeleccionada !== "undefined" && fechaSeleccionada) {
-            modalDatePicker.setDate(fechaSeleccionada);
-        } else {
-            modalDatePicker.setDate("today");
-        }
-        if (typeof actualizarResumen === "function") {
-            actualizarResumen();
-        }
-    }
-};
-</script>
 </body>
 </html>

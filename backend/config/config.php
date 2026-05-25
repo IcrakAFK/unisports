@@ -1,14 +1,11 @@
 <?php
-// =============================================
-//  UNISPORT BOOKING - config.php
-// =============================================
-
 define('DB_HOST',    'localhost');
 define('DB_NAME',    'unisport_db');
 define('DB_USER',    'root');
 define('DB_PASS',    '');
 define('DB_CHARSET', 'utf8mb4');
 
+// CONEXION BBDD
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
@@ -23,6 +20,7 @@ function getDB(): PDO {
     return $pdo;
 }
 
+// EXIGIR SESION USUARIO
 function requireLogin(): void {
     if (!isset($_SESSION['usuario_id'])) {
         header('Location: login.php');
@@ -30,6 +28,7 @@ function requireLogin(): void {
     }
 }
 
+//CONTROLAR ROL PERMITIDO
 function requireRol(string ...$roles): void {
     requireLogin();
     if (!isset($_SESSION['usuario_rol']) || $_SESSION['usuario_rol'] === '') {

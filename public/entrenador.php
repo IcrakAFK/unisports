@@ -3,7 +3,9 @@ session_start();
 require_once '../backend/config/config.php';
 
 if (!isset($_SESSION['usuario_id'])) {
-    header('Location: login.php'); exit;
+    header('Location: login.php');
+    requireRol('entrenador');
+    exit;
 }
 
 $pdo = getDB();
@@ -59,7 +61,7 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
 
 <nav class="nav-barra">
   <a class="nav-barra-brand" href="index.php">
-    <img src="assets/logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+    <img src="assets/logo.png" alt="UniSport Logo" class="logo-unisport">
     UniSport Booking - Entrenador
   </a>
   <div class="nav-links">
@@ -71,6 +73,7 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
 
 <div id="mensajeTemporal"></div>
 
+<!-- PERFIL ENTRENADOR -->
 <div class="main">
   <aside class="lat-barra">
     <div class="caja">
@@ -101,6 +104,7 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
       <div class="alerta success visible"><?= $mensaje ?></div>
     <?php endif; ?>
 
+<!-- CLASES HOY -->
     <h5 class="section-titulo" id="hoy">📅 Clases de hoy — <?= $fecha_hoy ?></h5>
     <?php if (empty($clases_hoy)): ?>
       <p class="sin-clases">No tienes clases asignadas para hoy.</p>
@@ -129,6 +133,7 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
       </div>
     <?php endif; ?>
 
+<!-- CLASES SEMANA -->
     <h5 class="section-titulo" id="semana">🗓️ Próximos 7 días</h5>
     <?php if (empty($clases_semana)): ?>
       <p class="sin-clases">No hay más clases programadas esta semana.</p>
@@ -163,9 +168,9 @@ $clases_semana = array_filter($agenda_completa, function($c) use ($fecha_hoy) { 
 
 <footer>
   UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
-  <a href="pages/aviso-legal.php">Aviso Legal</a> ·
-  <a href="pages/privacidad.php">Privacidad</a> ·
-  <a href="pages/cookies.php">Cookies</a>
+  <a href="paginas/aviso-legal.php">Aviso Legal</a> ·
+  <a href="paginas/privacidad.php">Privacidad</a> ·
+  <a href="paginas/cookies.php">Cookies</a>
 </footer>
 </body>
 </html>

@@ -11,10 +11,10 @@ $error   = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nombre   = trim($_POST['nombre']   ?? '');
-    $email    = trim($_POST['email']    ?? '');
+    $nombre = trim($_POST['nombre'] ?? '');
+    $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
-    $confirm  = $_POST['confirm']  ?? '';
+    $confirm = $_POST['confirm'] ?? '';
 
     if (empty($nombre) || empty($email) || empty($password)) {
         $error = 'Rellena todos los campos.';
@@ -50,9 +50,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="login-screen">
         <div class="login-caja">
             <div class="login-header" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:15px;">
-                <img src="assets/logo.png" alt="UniSport Logo" style="height:60px;width:auto;">
+                <img src="assets/logo.png" alt="UniSport Logo" class="logo-unisport">
                 <span>UniSport Booking</span>
             </div>
+<!-- CREAR CUENTA -->
             <div class="login-body">
                 <h5>Crear cuenta</h5>
                 <?php if ($error): ?>
@@ -81,6 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <button type="submit" class="btn-entrar">Registrarse</button>
                     </form>
                 <?php endif; ?>
+<!-- INICIO SESION -->
                 <p class="login-registro">¿Ya tienes cuenta? <a href="login.php">Entra aquí</a></p>
             </div>
         </div>

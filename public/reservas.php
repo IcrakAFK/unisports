@@ -16,7 +16,7 @@ requireLogin();
 <!-- BARRA NAVEGACION -->
 <nav class="nav-barra">
 <a class="nav-barra-brand" href="index.php">
-  <img src="assets/logo.png" alt="UniSport Logo" style="height: 50px; width: auto; vertical-align: middle; margin-right: 8px;">
+  <img src="../assets/logo.png" alt="UniSport Logo" class="logo-unisport">
   UniSport Booking
 </a>
   <div class="nav-links">
@@ -27,6 +27,7 @@ requireLogin();
   </div>
 </nav>
 
+<!-- RESERVAS USUARIO -->
 <div class="main-detalle">
   <div class="container-detalle">
 
@@ -48,9 +49,11 @@ requireLogin();
               <th>Acción</th>
             </tr>
           </thead>
-          <tbody id="cuerpoTablaReservas">
-            <tr><td colspan="9" style="text-align:center;color:#6c757d;">Cargando reservas...</td></tr>
-          </tbody>
+            <tbody id="cuerpoTablaReservas">
+                <tr>
+                    <td colspan="9" class="tabla-cargando">Cargando reservas...</td>
+                </tr>
+            </tbody>
         </table>
       </div>
     </div>
@@ -60,9 +63,9 @@ requireLogin();
 
 <footer>
   UniSport Booking System | &copy; <?= date('Y') ?> Servicio de Deportes Universitarios |
-  <a href="pages/aviso-legal.php">Aviso Legal</a> ·
-  <a href="pages/privacidad.php">Privacidad</a> ·
-  <a href="pages/cookies.php">Cookies</a>
+  <a href="paginas/aviso-legal.php">Aviso Legal</a> ·
+  <a href="paginas/privacidad.php">Privacidad</a> ·
+  <a href="paginas/cookies.php">Cookies</a>
 </footer>
 
 <!-- MODAL CANCELAR RESERVA -->

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cargarHistorial();
     }
 
+    // CARGAR CALENDARIO
     if (document.getElementById('calendarioFijo')) {
         flatpickr("#calendarioFijo", {
             inline: true,
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
+    // CONFIGURAR Y ACTIVAR CALENDARIO FECHA
     if (document.getElementById('inputFecha')) {
         modalDatePicker = flatpickr("#inputFecha", {
             locale: "es",
@@ -47,10 +48,10 @@ function detectarPagina() {
 function mensajeTemporal(mensaje, tipo = 'success') {
     const contenedor = document.getElementById('mensajeTemporal');
     if (!contenedor) return;
-    const el = document.createElement('div');
-    el.className = `mensaje-temporal ${tipo}`;
-    el.textContent = mensaje;
-    contenedor.appendChild(el);
+    const elemento = document.createElement('div');
+    elemento.className = `mensaje-temporal ${tipo}`;
+    elemento.textContent = mensaje;
+    contenedor.appendChild(elemento);
     setTimeout(() => el.remove(), 3500);
 }
 
@@ -61,8 +62,8 @@ function fechaLegible(fechaTexto) {
     return `${dia}/${mes}/${anho}`;
 }
 
-let cachePistas     = [];
-let cacheMonitores  = [];
+let cachePistas = [];
+let cacheMonitores = [];
 let cacheMateriales = [];
 let modalDatePicker;
 let fechaSeleccionada = new Date().toISOString().split('T')[0];
@@ -155,12 +156,12 @@ async function cargarHistorial() {
         if (!datos.ok) throw new Error(datos.mensaje);
 
         if (!datos.reservas.length) {
-            cuerpoTabla.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#6c757d;">No tienes reservas registradas.</td></tr>';
+        cuerpoTabla.innerHTML = '<tr><td colspan="9" class="tabla-cargando">No tienes reservas registradas.</td></tr>';
             return;
         }
 
         cuerpoTabla.innerHTML = datos.reservas.map(reserva => {
-            const claseEstado = reserva.estado_pago === 'pagado'    ? 'etiqueta-estado-ok'
+            const claseEstado = reserva.estado_pago === 'pagado' ? 'etiqueta-estado-bien'
                               : reserva.estado_pago === 'cancelada' ? 'etiqueta-estado-mal'
                               : 'etiqueta-estado-pend';
 
@@ -190,7 +191,7 @@ async function cargarHistorial() {
 // MODAL CANCELAR
 function abrirModalCancelar(id, callback) {
     const overlay = document.getElementById('modalCancelar');
-    const boton   = document.getElementById('btnConfirmarCancelar');
+    const boton = document.getElementById('btnConfirmarCancelar');
     if (!overlay || !boton) { callback(id); return; }
     overlay.classList.add('activo');
     const btnNuevo = boton.cloneNode(true);
@@ -206,7 +207,7 @@ function cerrarModalCancelar() {
     if (overlay) overlay.classList.remove('activo');
 }
 
-// CANCELAR RESERVA (desde inicio)
+// CANCELAR RESERVA DESDE INICIO
 function cancelarReserva(id) {
     abrirModalCancelar(id, async (idReserva) => {
         const fd = new FormData();
@@ -240,8 +241,8 @@ async function initModal() {
         fetch('../backend/api/api.php?action=materiales').then(r => r.json()),
     ]);
 
-    cachePistas     = respPistas.pistas     || [];
-    cacheMonitores  = respMonitores.monitores || [];
+    cachePistas = respPistas.pistas || [];
+    cacheMonitores = respMonitores.monitores || [];
     cacheMateriales = respMateriales.materiales || [];
 
     document.getElementById('selectPista').innerHTML = cachePistas.map(p =>
@@ -271,10 +272,21 @@ async function initModal() {
 function abrirModal() {
     document.getElementById('modalReserva').classList.add('activo');
     document.getElementById('modalMensaje').classList.remove('visible', 'error', 'success');
-    const inputFecha = document.getElementById('inputFecha');
-    if (inputFecha && fechaSeleccionada) inputFecha.value = fechaSeleccionada;
+    
+    if (modalDatePicker) {
+        if (typeof fechaSeleccionada !== "undefined" && fechaSeleccionada) {
+            modalDatePicker.setDate(fechaSeleccionada);
+        } else {
+            modalDatePicker.setDate("today");
+        }
+    }
+
+    if (typeof actualizarResumen === "function") {
+        actualizarResumen();
+    }
 }
 
+// ABRIR/CERRAL MODAL PISTA
 function abrirModalConPista(idPista) {
     abrirModal();
     const sel = document.getElementById('selectPista');
@@ -288,47 +300,47 @@ function cerrarModal() {
 
 // RESUMEN DE PRECIOS EN MODAL
 function actualizarResumen() {
-    const selectPista    = document.getElementById('selectPista');
-    const inputInicio    = document.getElementById('inputHoraInicio');
-    const inputFin       = document.getElementById('inputHoraFin');
-    const selectMonitor  = document.getElementById('selectMonitor');
+    const selectPista = document.getElementById('selectPista');
+    const inputInicio = document.getElementById('inputHoraInicio');
+    const inputFin  = document.getElementById('inputHoraFin');
+    const selectMonitor = document.getElementById('selectMonitor');
     const selectMaterial = document.getElementById('selectMaterial');
-    const cantidad       = parseInt(document.getElementById('cantidadMaterial')?.value || '1', 10);
+    const cantidad = parseInt(document.getElementById('cantidadMaterial')?.value || '1', 10);
 
     if (!selectPista || !inputInicio || !inputFin) return;
 
-    const precioPista    = parseFloat(selectPista.selectedOptions[0]?.dataset.precio    || 0);
-    const precioMonitor  = parseFloat(selectMonitor?.selectedOptions[0]?.dataset.precio  || 0);
+    const precioPista    = parseFloat(selectPista.selectedOptions[0]?.dataset.precio || 0);
+    const precioMonitor  = parseFloat(selectMonitor?.selectedOptions[0]?.dataset.precio || 0);
     const precioMaterial = parseFloat(selectMaterial?.selectedOptions[0]?.dataset.precio || 0);
 
     const horaInicio = inputInicio.value;
-    const horaFin    = inputFin.value;
+    const horaFin = inputFin.value;
     let horasTotales = 0;
     if (horaInicio && horaFin && horaFin > horaInicio) {
         horasTotales = (new Date('1970-01-01T' + horaFin) - new Date('1970-01-01T' + horaInicio)) / 3600000;
     }
 
-    const costePista    = precioPista * horasTotales;
-    const costeMonitor  = precioMonitor;
+    const costePista  = precioPista * horasTotales;
+    const costeMonitor = precioMonitor;
     const costeMaterial = precioMaterial * cantidad;
-    const total         = costePista + costeMonitor + costeMaterial;
+    const total = costePista + costeMonitor + costeMaterial;
 
-    document.getElementById('resumenPista').textContent    = costePista.toFixed(2) + ' €';
-    document.getElementById('resumenMonitor').textContent  = costeMonitor.toFixed(2) + ' €';
+    document.getElementById('resumenPista').textContent = costePista.toFixed(2) + ' €';
+    document.getElementById('resumenMonitor').textContent = costeMonitor.toFixed(2) + ' €';
     document.getElementById('resumenMaterial').textContent = costeMaterial.toFixed(2) + ' €';
-    document.getElementById('resumenTotal').textContent    = total.toFixed(2) + ' €';
+    document.getElementById('resumenTotal').textContent = total.toFixed(2) + ' €';
 }
 
 // CONFIRMAR RESERVA
 async function confirmarReserva() {
     const elementoMensaje = document.getElementById('modalMensaje');
-    const idPista     = document.getElementById('selectPista').value;
-    const fecha       = document.getElementById('inputFecha').value;
-    const horaInicio  = document.getElementById('inputHoraInicio').value;
-    const horaFin     = document.getElementById('inputHoraFin').value;
-    const idMonitor   = document.getElementById('selectMonitor').value;
-    const idMaterial  = document.getElementById('selectMaterial').value;
-    const cantidad    = document.getElementById('cantidadMaterial').value;
+    const idPista = document.getElementById('selectPista').value;
+    const fecha = document.getElementById('inputFecha').value;
+    const horaInicio = document.getElementById('inputHoraInicio').value;
+    const horaFin = document.getElementById('inputHoraFin').value;
+    const idMonitor = document.getElementById('selectMonitor').value;
+    const idMaterial = document.getElementById('selectMaterial').value;
+    const cantidad = document.getElementById('cantidadMaterial').value;
 
     if (!fecha || !horaInicio || !horaFin) {
         elementoMensaje.className = 'alerta error visible';
@@ -342,14 +354,14 @@ async function confirmarReserva() {
     }
 
     const fd = new FormData();
-    fd.append('action',       'reservar');
-    fd.append('pista_id',     idPista);
-    fd.append('fecha',        fecha);
-    fd.append('hora_inicio',  horaInicio);
-    fd.append('hora_fin',     horaFin);
-    fd.append('monitor_id',   idMonitor);
-    fd.append('material_id',  idMaterial);
-    fd.append('cantidad',     cantidad);
+    fd.append('action', 'reservar');
+    fd.append('pista_id', idPista);
+    fd.append('fecha', fecha);
+    fd.append('hora_inicio', horaInicio);
+    fd.append('hora_fin', horaFin);
+    fd.append('monitor_id', idMonitor);
+    fd.append('material_id', idMaterial);
+    fd.append('cantidad', cantidad);
 
     const respuesta = await fetch('../backend/api/api.php', { method: 'POST', body: fd });
     const datos = await respuesta.json();
@@ -358,13 +370,13 @@ async function confirmarReserva() {
         cerrarModal();
         const t = datos.ticket;
         const params = new URLSearchParams({
-            ticket:      t.id,
-            pista:       t.pista,
-            deporte:     t.deporte,
-            fecha:       t.fecha,
+            ticket: t.id,
+            pista: t.pista,
+            deporte: t.deporte,
+            fecha: t.fecha,
             hora_inicio: t.hora_inicio,
-            hora_fin:    t.hora_fin,
-            total:       t.total
+            hora_fin: t.hora_fin,
+            total: t.total
         });
         window.location.href = 'perfil.php?' + params.toString();
     } else {

@@ -11,7 +11,7 @@ session_start();
 <body>
 <nav class="nav-barra">
 <a class="nav-barra-brand" href="../index.php">
-  <img src="../assets/logo.png" alt="UniSport Logo" style="height: 35px; width: auto; vertical-align: middle; margin-right: 8px;">
+ <img src="../assets/logo.png" alt="UniSport Logo" class="logo-unisport">
   UniSport Booking
 </a>
 </nav>
